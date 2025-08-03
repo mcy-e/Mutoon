@@ -1,4 +1,111 @@
-temp:
+MainScreen:
+
+
+<MainScreen>:
+    orientation: 'vertical'
+    BottomNavBar:
+        id:nav_bar
+
+
+
+<BottomNavBar>:
+    orientation: 'vertical'
+
+    MDBottomNavigation:
+        MDBottomNavigationItem:
+            name:"mutoon"
+            icon:"book-open-page-variant"
+            text:""
+
+            Muton_Full_Widget:
+        MDBottomNavigationItem:
+            name:"explained_mutoon"
+            icon:"book-open-page-variant"
+            text:""
+
+
+            Explanation_of_Muton_Full_Widget: 
+<Muton_Full_Widget>:
+    
+
+    MDScrollView:
+        size_hint: 1, 1
+        pos_hint: {'center_x': 0.5,'top': 0.95}
+        Muton_btns:
+            size_hint_y:None
+            height:self.minimum_height
     MDLabel:
-        text: "ok"
-        size_hint: 0.2, 0.2
+        text: root.mtn_text
+        font_name:'arb_fnt'
+        halign:"center"
+        size_hint: 0.5, 0.5
+        opacity: 1
+        pos_hint: {'center_x': 0.5,'top': 0.7}
+        disabled: True
+
+<Muton_btns>:
+
+    cols:2
+    orientation: 'lr-tb'
+    CustomImageButton:
+        source: "UI/Light/To7fa_L.png"
+        label_text: root.tohfa
+        click:lambda :print("to")
+    CustomImageButton:
+        source: "UI/Light/EL_Djazaria_L.png"
+        label_text:root.Djazzeria
+        click:lambda:print("dj")
+
+
+        
+
+
+
+
+
+<Explanation_of_Muton_Full_Widget>:
+
+    MDLabel:
+        text: root.mtn_text_explan
+        font_name:'arb_fnt'
+        halign:"center"
+        size_hint: 1, 0.5
+        pos_hint: {'center_x': 0.5,'top': 0.7}
+    Explanation_of_Muton_btns:
+        size_hint: 1, 1
+        pos_hint: {'center_x': 0.5,'top': 0.5}
+
+
+<Explanation_of_Muton_btns>: 
+
+    cols:2
+    orientation: 'lr-tb'   
+
+
+
+<CustomImageButton>:
+    #*  default properties
+
+    orientation: 'vertical'
+    size_hint: 0.5, None
+    height: self.width * 0.33
+    spacing: "10dp"
+   # the custom image 
+
+    Image:
+        id:btn_bg
+        source: root.source
+        size_hint_y: 0.8
+        allow_stretch: True
+        keep_ratio: True
+
+    # the custom label
+    MDLabel:
+        text: root.label_text
+        halign: "center"
+        size_hint_y: 0.2
+        font_size: "15sp"
+        font_name:"fonts/Amiri-Regular.ttf"
+
+
+
