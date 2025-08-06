@@ -1,6 +1,7 @@
 MainScreen:
 
 
+
 <MainScreen>:
     orientation: 'vertical'
     BottomNavBar:
@@ -11,20 +12,102 @@ MainScreen:
 <BottomNavBar>:
     orientation: 'vertical'
 
-    MDBottomNavigation:
-        MDBottomNavigationItem:
-            name:"mutoon"
-            icon:"book-open-page-variant"
-            text:""
-
-            Muton_Full_Widget:
-        MDBottomNavigationItem:
-            name:"explained_mutoon"
-            icon:"book-open-page-variant"
-            text:""
+    MDBoxLayout:
+        orientation: 'horizontal'
+        size_hint_y:0.08
+        size_hint_x:1
 
 
-            Explanation_of_Muton_Full_Widget: 
+        MDGridLayout:
+            id:options_grid
+            size_hint_x: 0.8
+            pos_hint: {"x":0,"center_y":0.5}
+            cols:5
+            Options:
+                size_hint_x:1
+                angle: 90
+                theme_text_color:"Custom"
+                text_color:(0.992, 0.992, 0.914, 1) if root.dark_mode else [0.082, 0.067, 0.067, 1]
+            MDIconButton:
+                id:D_L_mode
+                icon:'moon-waning-crescent'
+                theme_text_color:"Custom"
+                text_color:(0.992, 0.992, 0.914, 1) if root.dark_mode else [0.082, 0.067, 0.067, 1]
+                size_hint_x:1
+                opacity:0
+                disabled:True
+                ripple_alpha:0
+                pos_hint:{'center_x':0.5,'center_y':0.5}
+                on_press:
+                    root.dark_mode=not root.dark_mode
+                    root.Switch_mode()
+                        
+            MDIconButton:
+                id:donation
+                icon:'gift'
+                size_hint_x:1
+                opacity:0
+                ripple_alpha:0
+                theme_text_color:"Custom"
+                text_color:(0.992, 0.992, 0.914, 1) if root.dark_mode else [0.082, 0.067, 0.067, 1]
+                disabled:True
+                pos_hint:{'center_x':0.5,'center_y':0.5}
+                on_press: print("donation is Active")
+            MDIconButton:
+                id:info
+                icon:'information'
+                size_hint_x:1
+                opacity:0
+                ripple_alpha:0
+                disabled:True
+                theme_text_color:"Custom"
+                text_color:(0.992, 0.992, 0.914, 1) if root.dark_mode else [0.082, 0.067, 0.067, 1]
+                on_press: print("info is Active")
+                pos_hint:{'center_x':0.5,'center_y':0.5}
+            MDIconButton:
+                id:socials
+                icon:'contacts'
+                size_hint_x:1
+                opacity:0
+                disabled:True
+                ripple_alpha:0
+                pos_hint:{'center_x':0.5,'center_y':0.5}
+                theme_text_color:"Custom"
+                text_color:(0.992, 0.992, 0.914, 1) if root.dark_mode else [0.082, 0.067, 0.067, 1]
+                on_press: print("socials is Active")
+
+
+                 
+ 
+    MDBoxLayout:
+        
+        orientation: 'vertical'
+        MDBottomNavigation:
+            MDBottomNavigationItem:
+                name:"mutoon"
+                icon:"book-open-page-variant"
+                text:""
+                Muton_Full_Widget:
+            MDBottomNavigationItem:
+                name:"explained_mutoon"
+                icon:"book-open-page-variant"
+                text:""
+
+
+                Explanation_of_Muton_Full_Widget: 
+
+
+
+<Options>:
+
+    theme_text_color: "Custom"
+    text_color: 1, 1, 1, 1
+    on_release:
+        root.is_pressed= not root.is_pressed
+        root.Show_Options()
+    
+
+
 <Muton_Full_Widget>:
     
 
@@ -48,11 +131,11 @@ MainScreen:
     cols:2
     orientation: 'lr-tb'
     CustomImageButton:
-        source: "UI/Light/To7fa_L.png"
+        source: "UI/Light/To7fa_L.png" if app.dark_app else "UI/Dark/To7fa_D.png"
         label_text: root.tohfa
         click:lambda :print("to")
     CustomImageButton:
-        source: "UI/Light/EL_Djazaria_L.png"
+        source: "UI/Light/EL_Djazaria_L.png" if app.dark_app else "UI/Dark/EL_Djazaria_D.png"
         label_text:root.Djazzeria
         click:lambda:print("dj")
 
@@ -70,7 +153,9 @@ MainScreen:
         font_name:'arb_fnt'
         halign:"center"
         size_hint: 1, 0.5
+        opacity: 1
         pos_hint: {'center_x': 0.5,'top': 0.7}
+        disabled: True
     Explanation_of_Muton_btns:
         size_hint: 1, 1
         pos_hint: {'center_x': 0.5,'top': 0.5}
@@ -106,6 +191,7 @@ MainScreen:
         size_hint_y: 0.2
         font_size: "15sp"
         font_name:"fonts/Amiri-Regular.ttf"
+        color: (1, 1, 1, 1) if app.dark_app else (0,0,0,1)
 
 
 
