@@ -3,24 +3,40 @@ from kivy.config import Config
 Config.set('graphics','width','360')
 
 Config.set('graphics','height','640')
+from kivy.core.window import Window
 from kivy.app import App
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.floatlayout import MDFloatLayout
+from kivymd.uix.label import MDLabel
 from kivy.core.text import LabelBase
-from kivy.properties import StringProperty,BooleanProperty,ObjectProperty,DictProperty
+from kivy.properties import StringProperty,BooleanProperty,ObjectProperty,DictProperty,ListProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivymd.uix.behaviors import RotateBehavior
-from kivymd.uix.button import MDFloatingActionButtonSpeedDial,MDIconButton
+from kivymd.uix.screenmanager import MDScreenManager
+from kivy.uix.screenmanager import FadeTransition 
+from kivymd.uix.carousel import MDCarousel
+from kivy.uix.image import Image
+from kivymd.uix.dialog import MDDialog
+from kivy.core.image import Image as CoreImage
+from kivy.uix.boxlayout import BoxLayout
+from kivymd.uix.screen import MDScreen
+from kivymd.uix.button import MDFloatingActionButtonSpeedDial,MDIconButton,MDRectangleFlatButton
+from kivy.clock import mainthread
+from kivy.uix.modalview import ModalView
 #* external libs (modules perhaps i say "with a british accent")
 import arabic_reshaper
 from bidi.algorithm import get_display
 from functools import partial
-
+from pdf2image import convert_from_path
+from io import BytesIO
+from threading import Thread
+import webbrowser
+import random
 #*register the font for easy access
 LabelBase.register(name="arb_fnt", fn_regular="fonts/NotoKufiArabic-Black.ttf")
 
@@ -31,6 +47,80 @@ def Arabic_txt_to_desplay(raw_text):
     reshaped = arabic_reshaper.reshape(raw_text)
     bidi_text = get_display(reshaped)
     return bidi_text
+#? popups
+class Info_popup(ModalView):
+    close_txt_raw = StringProperty("غلق")
+    info_txt_raw = StringProperty(
+        "تم صنع هذا البرنامج\n"
+        "لتسهيل الحصول على المتون\n"
+        "وتصفحها، خاصة متون التجويد\n"
+        "هذه نسخة تجريبية\n"
+        "مازالت قيد التطوير"
+    )
+
+    close_txt = StringProperty()
+    info_txt = StringProperty()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.close_txt = Arabic_txt_to_desplay(self.close_txt_raw)
+        self.info_txt = Arabic_txt_to_desplay(self.info_txt_raw)
+
+class Socials_popup(ModalView):
+    close_txt_raw = StringProperty("غلق")
+    main_txt_raw = StringProperty("وسائل التواصل الخاصة بصاحب التطبيق:")
+
+    close_txt = StringProperty()
+    main_txt = StringProperty()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.close_txt = Arabic_txt_to_desplay(self.close_txt_raw)
+        self.main_txt = Arabic_txt_to_desplay(self.main_txt_raw)
+
+    def routes(self,url):
+
+        webbrowser.open(url)
+
+
+class Gift_popup(ModalView):
+    close_txt_raw = StringProperty("غلق")
+    main_txt_raw = StringProperty("فضلا منكم نسأل الدعاء لنا\n و للأمة الإسلامية")
+    
+    ad3iya = ListProperty( [
+    "اللهم آتنا في الدنيا حسنة وفي\nالآخرة حسنة وقنا عذاب النار",
+    "اللهم اغفر لي ولوالدي وللمؤمنين\nوالمؤمنات يوم يقوم الحساب",
+    "اللهم إني أسألك الهدى والتقى\nوالعفاف والغنى",
+    "اللهم مصرف القلوب صرف قلوبنا\nعلى طاعتك",
+    "رب اغفر لي وتب علي إنك أنت\nالتواب الرحيم",
+    "اللهم ثبت قلبي على دينك\nوطاعتك",
+    "اللهم إني أسألك الجنة وأعوذ\nبك من النار",
+    "اللهم إني أسألك من الخير كله\nعاجله وآجله",
+    "اللهم إني أعوذ بك من جهد البلاء\nودرك الشقاء وسوء القضاء",
+    "اللهم إني أعوذ بك من الهم\nوالحزن والعجز والكسل",
+    "أستغفر الله العظيم الذي لا إله\nإلا هو الحي القيوم وأتوب إليه",
+    "سبحان الله وبحمده سبحان\nالله العظيم",
+    "لا إله إلا الله وحده لا شريك\nله له الملك وله الحمد",
+    "الحمد لله الذي بنعمته تتم\nالصالحات",
+    "لا حول ولا قوة إلا بالله\nالعلي العظيم",
+    "سبحان الله والحمد لله ولا إله إلا\nالله والله أكبر"
+])
+    
+    close_txt = StringProperty()
+    main_txt = StringProperty()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.close_txt = Arabic_txt_to_desplay(self.close_txt_raw)
+        self.main_txt = Arabic_txt_to_desplay(self.main_txt_raw)
+    def create(self):
+        popup=Gift_popup()
+        popup.Load_Dawa()
+        popup.open()
+    def Load_Dawa(self):
+        picked_raw = random.choice(self.ad3iya)
+        picked = Arabic_txt_to_desplay(picked_raw)
+        self.main_txt = picked
 
 #? Custom Widgets
 class CustomImageButton(ButtonBehavior, BoxLayout):
@@ -79,7 +169,7 @@ class Options(MDIconButton):
         widget.disabled= not widget.disabled
 
     def hide(self):
-        options=App.get_running_app().root.ids.nav_bar.ids.options_grid
+        options=App.get_running_app().root.ids.main_s.ids.nav_bar.ids.options_grid
         delay=1
 
         for child in options.children:
@@ -94,7 +184,7 @@ class Options(MDIconButton):
 
     def show(self):
         delay=1
-        options=App.get_running_app().root.ids.nav_bar.ids.options_grid
+        options=App.get_running_app().root.ids.main_s.ids.nav_bar.ids.options_grid
 
         for child in reversed(options.children):
             if self!= child:
@@ -131,19 +221,36 @@ class MainScreen(MDBoxLayout):
         super().__init__(*args, **kwargs)
 class BottomNavBar(MDBoxLayout):
     dark_mode=BooleanProperty(True)
+    mtn_active=BooleanProperty(True)
+    current_tab = StringProperty("mutoon")
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-     
+    
+    def set_color_delayed(self,tabed_item):
+       Clock.schedule_once(lambda dt: self.set_color(tabed_item), 0)
+
+    def set_current_tab(self, tab_name):
+        if self.current_tab != tab_name:
+            self.current_tab = tab_name
+
+
     try:    
         def Switch_mode(self):
             theme_modes=self.ids.D_L_mode
 
             if self.dark_mode:
                 App.get_running_app().theme_cls.theme_style='Dark'
+                
+
+                
                 theme_modes.icon='moon-waning-crescent'
             else:
                 App.get_running_app().theme_cls.theme_style='Light'
+                
+
                 theme_modes.icon='weather-sunny'
+
+
     except (AttributeError) as e :
         print(f"Error {e}")        
        
@@ -155,16 +262,59 @@ class Muton_Full_Widget(MDFloatLayout):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
+        
     try:
         def on_kv_post(self, base_widget):
             self.mtn_text=Arabic_txt_to_desplay(self.mtn_text_raw)
     except Exception as e:
         print(f"Error : {e}")
 
+
 class Muton_btns(MDGridLayout):
     #* Arabic strings (can't be handled in the kv file)
     tohfa=StringProperty("تحفة الأطفال")
     Djazzeria=StringProperty("الجزرية")
+    ibn_b=StringProperty("إبن بري")
+    al_shatibiya=StringProperty("الشاطبية")
+    mojmel=StringProperty("مجمل إعتقاد السلف")
+    def go_to_tohfa(self):
+        App.get_running_app().root.ids.tohfa.manager.transition=FadeTransition(duration=1/10)
+        App.get_running_app().root.current="to7fa"  
+
+    def go_to_Dj(self):
+        App.get_running_app().root.ids.Dj.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="Dj"
+   
+   
+    def go_to_ibn_b(self):
+        App.get_running_app().root.ids.ibn_b.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="loading"
+        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.ibn_b.ids.page.start(),0.1)
+        Clock.schedule_once(self.loaded_ibn_b,1)
+    def loaded_ibn_b(self,dt):
+        App.get_running_app().root.ids.ibn_b.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="ibn_b"
+
+    #* i didn't want to change the method  so i added it a loading screen to load all pages 
+    
+    def go_to_al_shat(self):
+        App.get_running_app().root.ids.al_shat.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="loading"
+        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.al_shat.ids.page.start(),0.1)
+        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.al_shat.ids.page.load_next_pages(),0.11)
+        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.al_shat.ids.page.load_next_pages(),0.12)
+        Clock.schedule_once(self.loaded_al_shat,0)
+    def loaded_al_shat(self,dt):
+        
+        App.get_running_app().root.ids.al_shat.manager.transition=FadeTransition(duration=1/10)
+        App.get_running_app().root.current="al_shat"
+        
+   
+   
+   
+    def go_to_mojmel(self):
+        App.get_running_app().root.ids.mojmel.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="mojmel"
 
 
 class Explanation_of_Muton_Full_Widget(MDFloatLayout):
@@ -173,6 +323,8 @@ class Explanation_of_Muton_Full_Widget(MDFloatLayout):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    
+    
     try:
         def on_kv_post(self, base_widget):
 
@@ -181,14 +333,1577 @@ class Explanation_of_Muton_Full_Widget(MDFloatLayout):
         print(f"Error : {e}")
 
 class Explanation_of_Muton_btns(MDGridLayout):
-    pass
+    #* Arabic strings (can't be handled in the kv file) E stands for Explanation
+    tohfa_E=StringProperty(" شرح تحفة الأطفال ")
+    Djazzeria_E=StringProperty(" شرح الجزرية")
+    ibn_b_E=StringProperty(" شرح إبن بري")
+    al_shatibiya_E=StringProperty("شرح الشاطبية")
+    mojmel_E=StringProperty("شرح المجمل ")
+
+    #* changing screens
+    def go_to_tohfa_E(self):
+        App.get_running_app().root.ids.tohfa_E.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="loading"
+        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.tohfa_E.ids.page.start(),1/10)
+        Clock.schedule_once(self.loaded_tohfa_E,1)
+    def loaded_tohfa_E(self,dt):
+        App.get_running_app().root.ids.tohfa_E.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="to7fa_E"
+
+    def go_to_Dj_E(self):
+
+        App.get_running_app().root.ids.Dj_E.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="loading"
+        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.Dj_E.ids.page.start(),1/10)
+        Clock.schedule_once(self.loaded_Dj_E,1)
+    def loaded_Dj_E(self,dt):
+        App.get_running_app().root.ids.Dj_E.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="Dj_E"
+    def go_to_ibn_b_E(self):
+        App.get_running_app().root.ids.ibn_b_E.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="ibn_b_E"
+    def go_to_al_shat_E(self):
+        App.get_running_app().root.ids.al_shat_E.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="al_shat_E"
+
+    def go_to_mojmel_E(self):
+        
+        App.get_running_app().root.ids.Dj_E.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="loading"
+        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.mojmel_E.ids.page.start(),1/10)
+        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.mojmel_E.ids.page.load_next_pages(),0.11)
+        Clock.schedule_once(self.loaded_mojmel_E,1)
+    
+    def loaded_mojmel_E(self,dt):
+        App.get_running_app().root.ids.mojmel_E.manager.transition=FadeTransition(duration=1/60)
+        App.get_running_app().root.current="mojmel_E"
+
+#*Screens init for py
+class TohfaScreen(MDScreen):
+    title_raw=StringProperty("تحفة الأطفال")
+    sections_raw=ListProperty(['المقدمة', 'النون الساكنة والتنوين', 'الميم والنون المشددتين', 'الميم الساكنة', 'لِام آل ولِام الفعل', 'المثلين والمتقاربين والمتجانسين', 'أقسام المد', 'أحَكام المد', 'أقسام المد اللازم', 'الخاتمة'])
+    copyright_raw=StringProperty("تحقيق حسن بن مصطفى بن أحمد الوراقي المصري")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fade_in=Animation(opacity=1,duration=1/5,t='in_quad')
+        self.fade_out=Animation(opacity=0,duration=1/5,t='out_quad')
+        self.title=Arabic_txt_to_desplay(self.title_raw)
+        self.copyright=Arabic_txt_to_desplay(self.copyright_raw)
+        self.sections=[]
+        for sec in self.sections_raw:
+            temp=Arabic_txt_to_desplay(sec)
+            self.sections.append(temp)
+        
+        
+
+    def fade_effect(self):
+        self.back=self.ids.back_btn
+        self.menu=self.ids.menu_btn
+        self.title=self.ids.title
+       
+        self.fade_out.start(self.back)
+        self.fade_out.start(self.menu)
+        self.fade_out.start(self.title)
+  
+        Clock.schedule_once(lambda dt :self.fade_in.start(self.back),0.5)
+        Clock.schedule_once(lambda dt :self.fade_in.start(self.menu),0.5)
+        Clock.schedule_once(lambda dt :self.fade_in.start(self.title),0.5)
+      
+        
+
+
+       
+        
+    def on_enter(self, *args):
+
+        #* MAKES THE PAGE ONLY WHEN THE USER ENTERS IT
+        if "page" in self.ids:  
+            self.fade_effect() 
+            self.ids.page.start()
+            
+    def on_leave(self, *args):
+        #* the screen is inactive no need for the widget
+        if "page" in self.ids:
+            
+            self.ids.page.clear_widgets()
+            self.ids.page.checking.cancel()
+            self.ids.page.built=False
+class Tohfa_pages(MDCarousel):
+    checking=ObjectProperty(None)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.direction='left' 
+        self.built=False
+        self.pdf_path ="PDFs/To7fa.pdf"
+       
+
+    def start(self):
+        if not self.built:
+
+            self.page_index = 1
+            self.batch_size = 4
+            self.total_pages = 4 
+            Clock.schedule_once(lambda dt: self.load_next_pages(), 0)
+            
+            self.checking=Clock.schedule_interval(self.check_if_at_end, 0.5)
+            self.built=True
+    def check_if_at_end(self, dt):
+        if self.index == len(self.slides) - 2:
+            self.load_next_pages()        
+
+
+    def load_next_pages(self):
+        self.end_page = self.page_index + self.batch_size - 1
+
+        try:
+            images = convert_from_path(
+                self.pdf_path,
+                first_page=self.page_index,
+                last_page=self.end_page,
+                size=(800, None)  
+            )
+        except Exception as e:
+            print("Error loading pages:", e)
+            return
+
+        for pil_img in images:
+          
+            buf = BytesIO()
+            pil_img.save(buf, format="PNG")
+            buf.seek(0)
+            core_img = CoreImage(buf, ext="png")
+
+
+            slide = MDFloatLayout(size_hint=(1, 1))
+            img = Image(
+                texture=core_img.texture,
+                allow_stretch=True,
+                keep_ratio=False,
+                size_hint=(1, 1),
+                pos_hint={"center_x": 0.5,"center_y": 0.5}
+            )
+            slide.add_widget(img)
+            self.add_widget(slide)
+
+        self.page_index += self.batch_size
+    def load_section(self, page_number):
+        index = page_number - 1
+        if 0 <= index < len(self.slides):
+            self.index = index
+            return
+        elif index >self.total_pages-1:
+            return
+        else:
+            try:
+                self.load_next_pages()
+                self.load_section(page_number)
+            except RecursionError as e:
+                print(f"page loaded or index exceded : {e}")
+
+class MojmelScreen(MDScreen):
+    title_raw=StringProperty("مجمل إعتقاد السلف")
+    sections_raw=ListProperty(["مقدمة","العقائد"])
+    copyright_raw=StringProperty("نظم الشيخ محمد سالم بن محمد علي ابن عبد الودود الهاشمي الشنقبطي")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fade_in=Animation(opacity=1,duration=1/5,t='in_quad')
+        self.fade_out=Animation(opacity=0,duration=1/5,t='out_quad')
+        self.title=Arabic_txt_to_desplay(self.title_raw)
+        self.copyright=Arabic_txt_to_desplay(self.copyright_raw)
+        self.sections=[]
+        for sec in self.sections_raw:
+            temp=Arabic_txt_to_desplay(sec)
+            self.sections.append(temp)
+        
+        
+
+    def fade_effect(self):
+        self.back=self.ids.back_btn
+        self.menu=self.ids.menu_btn
+        self.title=self.ids.title
+       
+        self.fade_out.start(self.back)
+        self.fade_out.start(self.menu)
+        self.fade_out.start(self.title)
+  
+        Clock.schedule_once(lambda dt :self.fade_in.start(self.back),0.5)
+        Clock.schedule_once(lambda dt :self.fade_in.start(self.menu),0.5)
+        Clock.schedule_once(lambda dt :self.fade_in.start(self.title),0.5)
+      
+        
+
+
+       
+        
+    def on_enter(self, *args):
+
+        #* MAKES THE PAGE ONLY WHEN THE USER ENTERS IT
+        if "page" in self.ids:  
+            self.fade_effect() 
+            self.ids.page.start()
+            
+    def on_leave(self, *args):
+        #* the screen is inactive no need for the widget
+        if "page" in self.ids:
+            
+            self.ids.page.clear_widgets()
+            self.ids.page.checking.cancel()
+            self.ids.page.built=False
+class Mojmel_pages(MDCarousel):
+    checking=ObjectProperty(None)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.direction='left' 
+        self.built=False
+        self.pdf_path ="PDFs/mojmel.pdf"
+       
+
+    def start(self):
+        if not self.built:
+
+            self.page_index = 1
+            self.batch_size = 5
+            self.total_pages = 23
+            Clock.schedule_once(lambda dt: self.load_next_pages(), 0)
+            self.checking=Clock.schedule_interval(self.check_if_at_end, 0.5)
+            self.built=True
+    def check_if_at_end(self, dt):
+        if self.index == len(self.slides) - 2:
+            self.load_next_pages()        
+
+
+    def load_next_pages(self):
+        self.end_page = self.page_index + self.batch_size - 1
+
+        try:
+            images = convert_from_path(
+                self.pdf_path,
+                first_page=self.page_index,
+                last_page=self.end_page,
+                size=(800, None)  
+            )
+        except Exception as e:
+            print("Error loading pages:", e)
+            return
+
+        for pil_img in images:
+          
+            buf = BytesIO()
+            pil_img.save(buf, format="PNG")
+            buf.seek(0)
+            core_img = CoreImage(buf, ext="png")
+
+
+            slide = MDFloatLayout(size_hint=(1, 1))
+            img = Image(
+                texture=core_img.texture,
+                allow_stretch=True,
+                keep_ratio=False,
+                size_hint=(1, 0.9),
+                pos_hint={"center_x": 0.5,"center_y": 0.5}
+            )
+            slide.add_widget(img)
+            self.add_widget(slide)
+
+        self.page_index += self.batch_size
+    def load_section(self, page_number):
+        index = page_number - 1
+        if 0 <= index < len(self.slides):
+            self.index = index
+            return
+        elif index >self.total_pages-1:
+            return
+        else:
+            try:
+                self.load_next_pages()
+                self.load_section(page_number)
+            except RecursionError as e:
+                print(f"page loaded or index exceded : {e}")
+
+class DjScreen(MDScreen):
+    title_raw=StringProperty("المقدمة الجزرية")
+    sections_raw=ListProperty( [
+        "المقدمة",
+        "مخارج الحروف",
+        "صفات الحروف",
+        "التجويد",
+        "تنبيهات",
+        "الراءات",
+        "اللامات وأحكام",
+        "الضاد والظاء",
+        "النون والميم المشددتان",
+        "النون الساكنة والتنوين",
+        "المد",
+        "الوقف والابتداء",
+        "المقطوع والموصول",
+        "التاءات",
+        "همز الوصل",
+        "الوقف على أواخر الكلم"
+    ])
+    copyright_raw=StringProperty("تحقيق أيمن رشدي سويد")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fade_in=Animation(opacity=1,duration=1/5,t='in_quad')
+        self.fade_out=Animation(opacity=0,duration=1/5,t='out_quad')
+        self.title=Arabic_txt_to_desplay(self.title_raw)
+        self.copyright=Arabic_txt_to_desplay(self.copyright_raw)
+        self.sections=[]
+        for sec in self.sections_raw:
+            temp=Arabic_txt_to_desplay(sec)
+            self.sections.append(temp)
+        
+        
+
+    def fade_effect(self):
+        self.back=self.ids.back_btn
+        self.menu=self.ids.menu_btn
+        self.title=self.ids.title
+       
+        self.fade_out.start(self.back)
+        self.fade_out.start(self.menu)
+        self.fade_out.start(self.title)
+  
+        Clock.schedule_once(lambda dt :self.fade_in.start(self.back),0.5)
+        Clock.schedule_once(lambda dt :self.fade_in.start(self.menu),0.5)
+        Clock.schedule_once(lambda dt :self.fade_in.start(self.title),0.5)
+      
+        
+
+
+       
+        
+    def on_enter(self, *args):
+
+        #* MAKES THE PAGE ONLY WHEN THE USER ENTERS IT
+        if "page" in self.ids:  
+            self.fade_effect() 
+            self.ids.page.start()
+            
+    def on_leave(self, *args):
+        #* the screen is inactive no need for the widget
+        if "page" in self.ids:
+            
+            self.ids.page.clear_widgets()
+            self.ids.page.checking.cancel()
+            self.ids.page.built=False
+class Dj_pages(MDCarousel):
+    checking=ObjectProperty(None)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.direction='left' 
+        self.built=False
+        self.pdf_path ="PDFs/Dj.pdf"
+       
+
+    def start(self):
+        if not self.built:
+
+            self.page_index = 1
+            self.batch_size = 5
+            self.total_pages = 11
+            Clock.schedule_once(lambda dt: self.load_next_pages(), 0)
+            self.checking=Clock.schedule_interval(self.check_if_at_end, 0.5)
+            self.built=True
+    def check_if_at_end(self, dt):
+        if self.index == len(self.slides) - 2:
+            self.load_next_pages()        
+
+
+    def load_next_pages(self):
+        self.end_page = self.page_index + self.batch_size - 1
+
+        try:
+            images = convert_from_path(
+                self.pdf_path,
+                first_page=self.page_index,
+                last_page=self.end_page,
+                size=(800, None)  
+            )
+        except Exception as e:
+            print("Error loading pages:", e)
+            return
+
+        for pil_img in images:
+          
+            buf = BytesIO()
+            pil_img.save(buf, format="PNG")
+            buf.seek(0)
+            core_img = CoreImage(buf, ext="png")
+
+
+            slide = MDFloatLayout(size_hint=(1, 1))
+            img = Image(
+                texture=core_img.texture,
+                allow_stretch=True,
+                keep_ratio=False,
+                size_hint=(1, 1),
+                pos_hint={"center_x": 0.5,"center_y": 0.5}
+            )
+            slide.add_widget(img)
+            self.add_widget(slide)
+
+        self.page_index += self.batch_size
+    def load_section(self, page_number):
+        index = page_number - 1
+        if 0 <= index < len(self.slides):
+            self.index = index
+            return
+        elif index >self.total_pages-1:
+            return
+        else:
+            try:
+                self.load_next_pages()
+                self.load_section(page_number)
+            except RecursionError as e:
+                print(f"page loaded or index exceded : {e}")
+
+class IBN_BScreen(MDScreen):
+    title_raw=StringProperty("الدرر اللوامع")
+    sections_raw=ListProperty([
+        "المقدمة",
+        "الإستعاذة",
+        "البسملة",
+        "ميم الجمع",
+        "هاء الضمير",
+        "الممدود و المقصور",
+        "التحقيق و التسهيل",
+        "الإبدال",
+        "أحكام نقل الحركة",
+        "الإظهار و الإدغام",
+        "إدغام النون و التنوين",
+        "المفتوح و الممال",
+        "الراءات",
+        "أحكام اللام",
+        "الإشمام و الروم",
+        "ياءات الإضافة",
+        "زوائد الياءات",
+        "فرش الحروف",
+        "مخارج الحروف",
+        "صفات الحروف",
+        "خاتمة"
+    ])
+    copyright_raw=StringProperty("تحقيق سليم بن محمد بن يوسف ربيع الجزائري")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fade_in=Animation(opacity=1,duration=1/5,t='in_quad')
+        self.fade_out=Animation(opacity=0,duration=1/5,t='out_quad')
+        self.title=Arabic_txt_to_desplay(self.title_raw)
+        self.copyright=Arabic_txt_to_desplay(self.copyright_raw)
+        self.sections=[]
+        for sec in self.sections_raw:
+            temp=Arabic_txt_to_desplay(sec)
+            self.sections.append(temp)
+        
+        
+
+    def fade_effect(self):
+        self.back=self.ids.back_btn
+        self.menu=self.ids.menu_btn
+        self.title=self.ids.title
+       
+        self.fade_in.start(self.back)
+        self.fade_in.start(self.menu)
+        self.fade_in.start(self.title)
+
+      
+        
+
+
+       
+        
+    def on_enter(self, *args):
+            
+        #* MAKES THE PAGE ONLY WHEN THE USER ENTERS IT
+        if "page" in self.ids: 
+            self.fade_effect() 
+            self.ids.page.start()
+
+            
+    def on_leave(self, *args):
+        #* the screen is inactive no need for the widget
+        if "page" in self.ids:
+            
+            self.ids.page.clear_widgets()
+            self.ids.page.checking.cancel()
+            self.ids.page.built=False
+class IBN_B_pages(MDCarousel):
+    checking=ObjectProperty(None)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.direction='left' 
+        self.built=False
+        self.pdf_path ="PDFs/ibn_b.pdf"
+        self.page_index = 1
+        self.total_pages = 47
+       
+
+    def start(self):
+        if not self.built:
+            self.page_index = 1
+            self.total_pages = 47
+            self.batch_size =47
+            self.load_next_pages()
+            self.checking = Clock.schedule_interval(self.check_if_at_end, 0.5)
+            self.built = True
+    def check_if_at_end(self, dt):
+        if self.index == len(self.slides) - 2:
+            
+            self.load_next_pages()        
+
+
+    def load_next_pages(self):
+       
+        self.end_page = self.page_index + self.batch_size - 1
+        
+        try:
+            images = convert_from_path(
+                self.pdf_path,
+                first_page=self.page_index,
+                last_page=self.end_page,
+                size=(None, None)  
+            )
+        except Exception as e:
+            print("Error loading pages:", e)
+            return
+
+        for pil_img in images:
+          
+            buf = BytesIO()
+            pil_img.save(buf, format="PNG")
+            buf.seek(0)
+            core_img = CoreImage(buf, ext="png")
+
+
+            slide = MDFloatLayout(size_hint=(1, 1))
+            img = Image(
+                texture=core_img.texture,
+                allow_stretch=True,
+                keep_ratio=False,
+                size_hint=(1, 1),
+                pos_hint={"center_x": 0.5,"center_y": 0.5}
+            )
+            slide.add_widget(img)
+            self.add_widget(slide)
+
+        self.page_index += self.batch_size
+    def load_section(self, page_number):
+        index = page_number - 1
+        if 0 <= index < len(self.slides):
+            self.index = index
+            return
+        elif index >self.total_pages-1:
+            return
+        else:
+            try:
+                self.load_next_pages()
+                self.load_section(page_number)
+            except RecursionError as e:
+                print(f"page loaded or index exceded : {e}")
+
+
+class AL_SHATScreen(MDScreen):
+    title_raw=StringProperty("الشاطبية")
+    sections_raw=ListProperty([
+        "المقدمة",
+        "الاستعاذة",
+        "البسملة",
+        "أم القرآن",
+        "الإدغام الكبير",
+        "إدغام المتقاربين",
+        "هاء الكناية",
+        "المد والقصر",
+        "الهمزتان بكلمة",
+        "الهمزتان بكلمتين",
+        "الهمز المفرد",
+        "نقل حركة الهمز",
+        "وقف حمزة وهشام",
+        "الإظهار والإدغام",
+        "إدغام إذ وقد",
+        "الحروف المتقاربة",
+        "النون الساكنة والتنوين",#16
+        "الفتح والإمالة",#17
+        "إمالة هاء التأنيث",
+        "الراءات",#19
+        "اللامات",#20
+        "الوقف على أواخر الكلم",
+        "الوقف على الرسم",
+        "ياء الإضافة",
+        "ياءات الزوائد",
+        "فرش الحروف",
+        "التكبير",
+        "المخارج والصفات",
+        "خاتمة"
+    ])
+    copyright_raw=StringProperty("محمد تميم الزعبي")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fade_in=Animation(opacity=1,duration=1/5,t='in_quad')
+        self.fade_out=Animation(opacity=0,duration=1/5,t='out_quad')
+        self.title=Arabic_txt_to_desplay(self.title_raw)
+        self.copyright=Arabic_txt_to_desplay(self.copyright_raw)
+        self.sections=[]
+        for sec in self.sections_raw:
+            temp=Arabic_txt_to_desplay(sec)
+            self.sections.append(temp)
+        
+        
+
+    def fade_effect(self):
+        self.back=self.ids.back_btn
+        self.menu=self.ids.menu_btn
+        self.title=self.ids.title
+       
+        self.fade_in.start(self.back)
+        self.fade_in.start(self.menu)
+        self.fade_in.start(self.title)
+
+      
+        
+
+
+       
+        
+    def on_enter(self, *args):
+            
+        #* MAKES THE PAGE ONLY WHEN THE USER ENTERS IT
+        if "page" in self.ids: 
+            self.fade_effect() 
+            self.ids.page.start()
+
+            
+    def on_leave(self, *args):
+        #* the screen is inactive no need for the widget
+        if "page" in self.ids:
+            
+            self.ids.page.clear_widgets()
+            self.ids.page.checking.cancel()
+            self.ids.page.built=False
+class AL_SHAT_pages(MDCarousel):
+    checking=ObjectProperty(None)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.direction='left' 
+        self.built=False
+        self.pdf_path ="PDFs/al_shat.pdf"
+        self.page_index = 1
+        self.total_pages = 95
+        
+       
+
+    def start(self):
+        if not self.built:
+            self.page_index = 1
+            self.total_pages = 95
+            self.batch_size =31
+            self.load_next_pages()
+            self.checking = Clock.schedule_interval(self.check_if_at_end, 0.5)
+            self.built = True
+            
+    def check_if_at_end(self, dt):
+        if self.index == len(self.slides) - 2:
+            self.load_next_pages()        
+
+
+    def load_next_pages(self):
+       
+        self.end_page = self.page_index + self.batch_size - 1
+        
+        try:
+            images = convert_from_path(
+                self.pdf_path,
+                first_page=self.page_index,
+                last_page=self.end_page,
+                size=(None, None)  
+            )
+        except Exception as e:
+            print("Error loading pages:", e)
+            return
+
+        for pil_img in images:
+          
+            buf = BytesIO()
+            pil_img.save(buf, format="PNG")
+            buf.seek(0)
+            core_img = CoreImage(buf, ext="png")
+
+
+            slide = MDFloatLayout(size_hint=(1, 1))
+            img = Image(
+                texture=core_img.texture,
+                allow_stretch=True,
+                keep_ratio=False,
+                size_hint=(1, 1),
+                pos_hint={"center_x": 0.5,"center_y": 0.5}
+            )
+            slide.add_widget(img)
+            self.add_widget(slide)
+
+        self.page_index += self.batch_size
+
+
+
+    def load_section(self, page_number):
+        index = page_number - 1
+        if 0 <= index < len(self.slides):
+            self.index = index
+            return
+        elif index >self.total_pages-1:
+            return
+        else:
+            try:
+                self.load_next_pages()
+                self.load_section(page_number)
+            except RecursionError as e:
+                print(f"page loaded or index exceded : {e}")
+
+
+#* for Explanations
+
+class Tohfa_E_Screen(MDScreen):
+    title_raw=StringProperty("شرح تحفة الاطفال")
+    sections_raw=ListProperty([
+        "المقدمة",
+        "الفصل الأول",
+        "الفصل الثاني",
+        "الفصل الثالث",
+        "الفصل الرابع"
+    ])
+    copyright_raw=StringProperty("أبي حفص عمر بن أحمد الأزهري")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fade_in=Animation(opacity=1,duration=1/5,t='in_quad')
+        self.fade_out=Animation(opacity=0,duration=1/5,t='out_quad')
+        self.title=Arabic_txt_to_desplay(self.title_raw)
+        self.copyright=Arabic_txt_to_desplay(self.copyright_raw)
+        self.sections=[]
+        for sec in self.sections_raw:
+            temp=Arabic_txt_to_desplay(sec)
+            self.sections.append(temp)
+        
+        
+
+    def fade_effect(self):
+        self.back=self.ids.back_btn
+        self.menu=self.ids.menu_btn
+        self.title=self.ids.title
+       
+        self.fade_in.start(self.back)
+        self.fade_in.start(self.menu)
+        self.fade_in.start(self.title)
+
+      
+        
+
+
+       
+        
+    def on_enter(self, *args):
+            
+        #* MAKES THE PAGE ONLY WHEN THE USER ENTERS IT
+        if "page" in self.ids: 
+            self.fade_effect() 
+            self.ids.page.start()
+
+            
+    def on_leave(self, *args):
+        #* the screen is inactive no need for the widget
+        if "page" in self.ids:
+            
+            self.ids.page.clear_widgets()
+            self.ids.page.checking.cancel()
+            self.ids.page.built=False
+class Tohfa_E_pages(MDCarousel):
+    checking=ObjectProperty(None)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.direction='left' 
+        self.built=False
+        self.pdf_path ="PDFs/To7fa_E.pdf"
+        self.page_index = 1
+        self.total_pages = 58
+        
+       
+
+    def start(self):
+
+        if not self.built:
+            self.page_index = 1
+            self.total_pages = 58
+            self.batch_size =58
+            self.load_next_pages()
+            self.checking = Clock.schedule_interval(self.check_if_at_end, 0.5)
+            self.built = True
+            
+    def check_if_at_end(self, dt):
+        if self.index == len(self.slides) - 2:
+            self.load_next_pages()        
+
+
+    def load_next_pages(self):
+       
+        self.end_page = self.page_index + self.batch_size - 1
+        
+        try:
+            images = convert_from_path(
+                self.pdf_path,
+                first_page=self.page_index,
+                last_page=self.end_page,
+                size=(800, None)  
+            )
+        except Exception as e:
+            print("Error loading pages:", e)
+            return
+
+        for pil_img in images:
+          
+            buf = BytesIO()
+            pil_img.save(buf, format="PNG")
+            buf.seek(0)
+            core_img = CoreImage(buf, ext="png")
+
+
+            slide = MDFloatLayout(size_hint=(1, 1))
+            img = Image(
+                texture=core_img.texture,
+                allow_stretch=True,
+                keep_ratio=False,
+                size_hint=(1, 1),
+                pos_hint={"center_x": 0.5,"center_y": 0.5}
+            )
+            slide.add_widget(img)
+            self.add_widget(slide)
+
+        self.page_index += self.batch_size
+    def load_section(self, page_number):
+        index = page_number - 1
+        if 0 <= index < len(self.slides):
+            self.index = index
+            return
+        elif index >self.total_pages-1:
+            return
+        else:
+            try:
+                self.load_next_pages()
+                self.load_section(page_number)
+            except RecursionError as e:
+                print(f"page loaded or index exceded : {e}")
+
+class Dj_E_Screen(MDScreen):
+    title_raw=StringProperty("شرح الجزرية")
+    sections_raw=ListProperty( [
+        "مقدمة",
+        "تمهيد",
+        "نص المقدمة",
+        "مقدمة المصنف",
+        "مخارج الحروف",
+        "صفات الحروف",
+        "معرفة التجويد",
+        "الترقيق",
+        "الراءات",
+        "التفخيم",
+        "الإدغام",
+        "الضاد و الظاء",
+        "النون و الميم",
+        "المد",
+        "الوقف و الابتداء",
+        "المقطوع و الموصول",
+        "هاءات التانيث",
+        "الابتداء بهمزة الوصل",
+        "الوقف على أواخر الكلم",
+        "خاتمة المقدمة",
+        "قائمة المصادر"
+    ])
+    copyright_raw=StringProperty("غانم قدوري الحمد")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fade_in=Animation(opacity=1,duration=1/5,t='in_quad')
+        self.fade_out=Animation(opacity=0,duration=1/5,t='out_quad')
+        self.title=Arabic_txt_to_desplay(self.title_raw)
+        self.copyright=Arabic_txt_to_desplay(self.copyright_raw)
+        self.sections=[]
+        for sec in self.sections_raw:
+            temp=Arabic_txt_to_desplay(sec)
+            self.sections.append(temp)
+        
+        
+
+    def fade_effect(self):
+        self.back=self.ids.back_btn
+        self.menu=self.ids.menu_btn
+        self.title=self.ids.title
+       
+        self.fade_in.start(self.back)
+        self.fade_in.start(self.menu)
+        self.fade_in.start(self.title)
+
+      
+        
+
+
+       
+        
+    def on_enter(self, *args):
+            
+        #* MAKES THE PAGE ONLY WHEN THE USER ENTERS IT
+        if "page" in self.ids: 
+            self.fade_effect() 
+            self.ids.page.start()
+
+            
+    def on_leave(self, *args):
+        #* the screen is inactive no need for the widget
+        if "page" in self.ids:
+            
+            
+            if self.ids.page.checking:
+                self.ids.page.clear_widgets()
+                self.ids.page.checking.cancel()
+
+            self.ids.page.built=False
+class Dj_E_pages(MDCarousel):
+    checking=ObjectProperty(None)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.direction='left' 
+        self.built=False
+        self.pdf_path ="PDFs/Dj_E.pdf"
+        self.page_index = 1
+        self.total_pages = 158
+        
+       
+
+    def start(self):
+        if self.pdf_path=="":
+            return
+        if not self.built:
+            self.page_index = 1
+            self.total_pages = 158
+            self.batch_size =158
+            self.load_next_pages()
+            self.checking = Clock.schedule_interval(self.check_if_at_end, 0.5)
+            self.built = True
+            
+    def check_if_at_end(self, dt):
+        if self.index == len(self.slides) - 2:
+            self.load_next_pages()        
+
+
+    def load_next_pages(self):
+       
+        self.end_page = self.page_index + self.batch_size - 1
+        
+        try:
+            images = convert_from_path(
+                self.pdf_path,
+                first_page=self.page_index,
+                last_page=self.end_page,
+                size=(800, None)  
+            )
+        except Exception as e:
+            print("Error loading pages:", e)
+            return
+
+        for pil_img in images:
+          
+            buf = BytesIO()
+            pil_img.save(buf, format="PNG")
+            buf.seek(0)
+            core_img = CoreImage(buf, ext="png")
+
+
+            slide = MDFloatLayout(size_hint=(1, 1))
+            img = Image(
+                texture=core_img.texture,
+                allow_stretch=True,
+                keep_ratio=False,
+                size_hint=(1, 1),
+                pos_hint={"center_x": 0.5,"center_y": 0.5}
+            )
+            slide.add_widget(img)
+            self.add_widget(slide)
+
+        self.page_index += self.batch_size
+    def load_section(self, page_number):
+        index = page_number - 1
+        if 0 <= index < len(self.slides):
+            self.index = index
+            return
+        elif index >self.total_pages-1:
+            return
+        else:
+            try:
+                self.load_next_pages()
+                self.load_section(page_number)
+            except RecursionError as e:
+                print(f"page loaded or index exceded : {e}")
+
+class IBN_B_E_Screen(MDScreen):
+    title_raw=StringProperty("شرح الدرر اللوامع")
+    sections_raw=ListProperty()
+    copyright_raw=StringProperty("")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fade_in=Animation(opacity=1,duration=1/5,t='in_quad')
+        self.fade_out=Animation(opacity=0,duration=1/5,t='out_quad')
+        self.title=Arabic_txt_to_desplay(self.title_raw)
+        self.copyright=Arabic_txt_to_desplay(self.copyright_raw)
+        self.sections=[]
+        for sec in self.sections_raw:
+            temp=Arabic_txt_to_desplay(sec)
+            self.sections.append(temp)
+        
+        
+
+    def fade_effect(self):
+        self.back=self.ids.back_btn
+        self.menu=self.ids.menu_btn
+        self.title=self.ids.title
+       
+        self.fade_in.start(self.back)
+        self.fade_in.start(self.menu)
+        self.fade_in.start(self.title)
+
+      
+        
+
+
+       
+        
+    def on_enter(self, *args):
+            
+        #* MAKES THE PAGE ONLY WHEN THE USER ENTERS IT
+        if "page" in self.ids: 
+            self.fade_effect() 
+            self.ids.page.start()
+
+            
+    def on_leave(self, *args):
+        #* the screen is inactive no need for the widget
+        if "page" in self.ids:
+            
+            
+            if self.ids.page.checking:
+                self.ids.page.clear_widgets()
+                self.ids.page.checking.cancel()
+            
+            self.ids.page.built=False
+class IBN_B_E_pages(MDCarousel):
+    checking=ObjectProperty(None)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.direction='left' 
+        self.built=False
+        self.pdf_path =""
+        self.page_index = 1
+        self.total_pages = 58
+        
+       
+
+    def start(self):
+        if not self.pdf_path:
+            return
+        if not self.built:
+            self.page_index = 1
+            self.total_pages = 58
+            self.batch_size =58
+            self.load_next_pages()
+            self.checking = Clock.schedule_interval(self.check_if_at_end, 0.5)
+            self.built = True
+            
+    def check_if_at_end(self, dt):
+        if self.index == len(self.slides) - 2:
+            self.load_next_pages()        
+
+
+    def load_next_pages(self):
+       
+        self.end_page = self.page_index + self.batch_size - 1
+        
+        try:
+            images = convert_from_path(
+                self.pdf_path,
+                first_page=self.page_index,
+                last_page=self.end_page,
+                size=(800, None)  
+            )
+        except Exception as e:
+            print("Error loading pages:", e)
+            return
+
+        for pil_img in images:
+          
+            buf = BytesIO()
+            pil_img.save(buf, format="PNG")
+            buf.seek(0)
+            core_img = CoreImage(buf, ext="png")
+
+
+            slide = MDFloatLayout(size_hint=(1, 1))
+            img = Image(
+                texture=core_img.texture,
+                allow_stretch=True,
+                keep_ratio=False,
+                size_hint=(1, 1),
+                pos_hint={"center_x": 0.5,"center_y": 0.5}
+            )
+            slide.add_widget(img)
+            self.add_widget(slide)
+
+        self.page_index += self.batch_size
+    def load_section(self, page_number):
+        index = page_number - 1
+        if 0 <= index < len(self.slides):
+            self.index = index
+            return
+        elif index >self.total_pages-1:
+            return
+        else:
+            try:
+                self.load_next_pages()
+                self.load_section(page_number)
+            except RecursionError as e:
+                print(f"page loaded or index exceded : {e}")
+
+class AL_SHAT_E_Screen(MDScreen):
+    title_raw=StringProperty("شرح الشاطبية")
+    sections_raw=ListProperty()
+    copyright_raw=StringProperty("")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fade_in=Animation(opacity=1,duration=1/5,t='in_quad')
+        self.fade_out=Animation(opacity=0,duration=1/5,t='out_quad')
+        self.title=Arabic_txt_to_desplay(self.title_raw)
+        self.copyright=Arabic_txt_to_desplay(self.copyright_raw)
+        self.sections=[]
+        for sec in self.sections_raw:
+            temp=Arabic_txt_to_desplay(sec)
+            self.sections.append(temp)
+        
+        
+
+    def fade_effect(self):
+        self.back=self.ids.back_btn
+        self.menu=self.ids.menu_btn
+        self.title=self.ids.title
+       
+        self.fade_in.start(self.back)
+        self.fade_in.start(self.menu)
+        self.fade_in.start(self.title)
+
+      
+        
+
+
+       
+        
+    def on_enter(self, *args):
+            
+        #* MAKES THE PAGE ONLY WHEN THE USER ENTERS IT
+        if "page" in self.ids: 
+            self.fade_effect() 
+            self.ids.page.start()
+
+            
+    def on_leave(self, *args):
+        #* the screen is inactive no need for the widget
+        if "page" in self.ids:
+            
+            
+            if self.ids.page.checking:
+                self.ids.page.clear_widgets()
+                self.ids.page.checking.cancel()
+            self.ids.page.built=False
+class AL_SHAT_E_pages(MDCarousel):
+    checking=ObjectProperty(None)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.direction='left' 
+        self.built=False
+        self.pdf_path =""
+        self.page_index = 1
+        self.total_pages = 58
+        
+       
+
+    def start(self):
+        if self.pdf_path=="":
+            return
+        if not self.built:
+            self.page_index = 1
+            self.total_pages = 58
+            self.batch_size =58
+            self.load_next_pages()
+            self.checking = Clock.schedule_interval(self.check_if_at_end, 0.5)
+            self.built = True
+            
+    def check_if_at_end(self, dt):
+        if self.index == len(self.slides) - 2:
+            self.load_next_pages()        
+
+
+    def load_next_pages(self):
+       
+        self.end_page = self.page_index + self.batch_size - 1
+        
+        try:
+            images = convert_from_path(
+                self.pdf_path,
+                first_page=self.page_index,
+                last_page=self.end_page,
+                size=(800, None)  
+            )
+        except Exception as e:
+            print("Error loading pages:", e)
+            return
+
+        for pil_img in images:
+          
+            buf = BytesIO()
+            pil_img.save(buf, format="PNG")
+            buf.seek(0)
+            core_img = CoreImage(buf, ext="png")
+
+
+            slide = MDFloatLayout(size_hint=(1, 1))
+            img = Image(
+                texture=core_img.texture,
+                allow_stretch=True,
+                keep_ratio=False,
+                size_hint=(1, 1),
+                pos_hint={"center_x": 0.5,"center_y": 0.5}
+            )
+            slide.add_widget(img)
+            self.add_widget(slide)
+
+        self.page_index += self.batch_size
+    def load_section(self, page_number):
+        index = page_number - 1
+        if 0 <= index < len(self.slides):
+            self.index = index
+            return
+        elif index >self.total_pages-1:
+            return
+        else:
+            try:
+                self.load_next_pages()
+                self.load_section(page_number)
+            except RecursionError as e:
+                print(f"page loaded or index exceded : {e}")
+
+class Mojmel_E_Screen(MDScreen):
+    title_raw=StringProperty("شرح المجمل")
+    sections_raw=ListProperty([
+    "المقدّمة",
+    "ترجمة الناظم",
+    "ترجمة الشارح",
+    "عملي في الكتاب",
+    "مجمل اعتقاد السلف",
+    "الشرح والبسملة",
+    "أصل الناظم",
+    "أسماء النبي",
+    "آل النبي",
+    "إطلاقات العبودية",
+    "اشتقاق اسم الله",
+    "القدر ومراتبه",
+    "أقسام القدر",
+    "الإرادة: تكوينية وتشريعية",
+    "الخلاف في خلق الأفعال",
+    "مذهب الكسب",
+    "القول الراجح في الأفعال",
+    "التخيير والتسيير",
+    "الإرادتين وأفعال العباد",
+    "حكمة الله",
+    "خلق الله بـ(كن)",
+    "قاعدة التسليم",
+    "بطلان وجوب سبق الشك",
+    "خلق الأفعال",
+    "أسباب القدر",
+    "أحدية الله وصمديته",
+    "إلحاد الاتحاد",
+    "نفي المماثلة لا نفي الصفات",
+    "صفات أهل السنة",
+    "إمرار نصوص الصفات",
+    "منهج السلف",
+    "التعبير بالنفس",
+    "لفظ الذات",
+    "القول في الصفات كالذات",
+    "نفي الكيف",
+    "القول في بعض الصفات",
+    "باب الصفات الإلهية",
+    "المنهج الصحيح",
+    "صفات فعلية",
+    "صفة الإتيان",
+    "صفة الواسع",
+    "إثبات اليد ومباينتها",
+    "رؤية الله: الدنيا والآخرة",
+    "السمع والبصر",
+    "صفة المحبة",
+    "صفات العجب والضحك",
+    "صفات الرضى والاستجابة",
+    "الغضب",
+    "البغض",
+    "الطمس",
+    "الطبع والختم على القلوب",
+    "القبض والبسط",
+    "الإعطاء والمنع",
+    "الخافض الرافع",
+    "المعز والمذل",
+    "يكره ويمقت",
+    "يهدي ويضل",
+    "إقبال الله وإعراضه",
+    "أقسام التوبة",
+    "الرحمة",
+    "الأخذ",
+    "إطعام الخلق",
+    "الغيرة",
+    "الاستحياء",
+    "صفة الأذن",
+    "أفعال الله بمشيئته",
+    "مشيئة العباد",
+    "تنزيه عن الضلال",
+    "تنزيه عن الظلم",
+    "نفي المعين والظهير",
+    "نفي العجز",
+    "كلام الله غير مخلوق",
+    "النسخ",
+    "إثبات الكلام",
+    "الكلام التكويني والتشريعي",
+    "إثبات السكوت",
+    "إحاطة الله",
+    "إثبات الوجه",
+    "الاستواء",
+    "نفي التشبيه",
+    "إثبات النزول",
+    "إثبات العلو",
+    "تفصيل الكلام في الجهة",
+    "إثبات الاصطفاء",
+    "الكتب المنزلة",
+    "القرآن كلام الله",
+    "الصوت والحرف",
+    "تنزيه كلام الله",
+    "بطلان قياس المماثلة",
+    "تكليم موسى",
+    "إبراهيم خليلا",
+    "تأويل ما يوهم النقص",
+    "أسماء الله الحسنى",
+    "توقيفية الأسماء",
+    "التسعة والتسعين",
+    "اسم الله الأعظم",
+    "منهج السلف في الصفات",
+    "تعريف الشرك",
+    "تحقيق التوحيد",
+    "اتباع الأحوط",
+    "التوسل بالنبي",
+    "التعبيد في الأسماء",
+    "النذر لغير الله",
+    "التمسح بالقبور",
+    "العبادة بشرعه",
+    "توحيد الربوبية",
+    "دعاء غير الله",
+    "تعريف الإيمان",
+    "الأعمال والإيمان",
+    "زيادة الإيمان",
+    "نقصان الإيمان",
+    "الإيمان بالوحي",
+    "الإيمان بالكتب",
+    "الإيمان بالملائكة",
+    "الإيمان بالرسل",
+    "عدد الرسل",
+    "خاتم النبيين",
+    "تأييد المعجزات",
+    "معجزة القرآن",
+    "الشفاعة الكبرى",
+    "شهادة محمد رسول الله",
+    "السنة والقرآن",
+    "الإيمان باليوم الآخر",
+    "القبر أول المنازل",
+    "الساعة وأشراطها",
+    "البعث وأدلته",
+    "مشاهد اليوم الآخر",
+    "الصراط والجنة والنار",
+    "الكتابة من مراتب القدر",
+    "قائمة المصادر",
+    "فهرس الموضوعات"
+])
+    copyright_raw=StringProperty("محمد حسن ولد الددو الشنقيطي")
+    page_numbers = ListProperty([
+    9, 11, 13, 15, 17, 25, 26, 27, 28, 28, 33, 36, 37, 38, 39, 40, 40, 41, 42, 42,
+    43, 44, 45, 46, 46, 46, 47, 49, 50, 50, 51, 53, 54, 58, 59, 59, 61, 61, 64, 67,
+    68, 69, 70, 62, 62, 63, 66, 71, 72, 73, 73, 74, 74, 75, 76, 77, 78, 79, 80, 80,
+    81, 82, 83, 84, 86, 87, 89, 90, 91, 96, 97, 99, 100, 102, 103, 104, 109, 109, 110, 112,
+    113, 117, 118, 119, 120, 121, 121, 122, 123, 124, 125, 126, 127, 128, 130, 114, 115, 116, 135, 136,
+    137, 139, 140, 142, 144, 145, 148, 149, 150, 152, 153, 155, 132, 133, 134, 156, 157, 158, 161,
+    162, 164, 166, 167, 169, 170, 171, 173, 175,177,181, 191
+])
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fade_in=Animation(opacity=1,duration=1/5,t='in_quad')
+        self.fade_out=Animation(opacity=0,duration=1/5,t='out_quad')
+        self.title=Arabic_txt_to_desplay(self.title_raw)
+        self.copyright=Arabic_txt_to_desplay(self.copyright_raw)
+        self.sections=[]
+        for sec in self.sections_raw:
+            temp=Arabic_txt_to_desplay(sec)
+            self.sections.append(temp)
+        Clock.schedule_once(self.add_ferhas,0.1)
+    def wrapper(self,n):
+        self.ids.page.load_section(n),
+        self.ids.nav_drawer.set_state("close")
+    def add_ferhas(self,dt):
+        l=self.ids.fehras
+        l_color=(0.9,0.9,0.9,1) if App.get_running_app().dark_app else (0.1,0.1,0.1,1)
+        t_color=l_color
+        for section, number in zip(self.sections, self.page_numbers):
+            b = MDRectangleFlatButton(
+                font_name="arb_fnt",
+                text_color=t_color,
+                line_color=l_color,
+                ripple_color=(0.2, 0.2, 0.2, 0.1),
+                size_hint=(1, 0.2),
+                theme_text_color="Custom",
+                on_release=lambda btn, n=number: self.wrapper(n)
+            )
+            
+
+            b.text = section
+            # b.halign = "right"
+            # b.valign = "center"
+            
+            
+            l.add_widget(b)
+            
+        
+
+    def fade_effect(self):
+        self.back=self.ids.back_btn
+        self.menu=self.ids.menu_btn
+        self.title=self.ids.title
+       
+        self.fade_in.start(self.back)
+        self.fade_in.start(self.menu)
+        self.fade_in.start(self.title)
+
+      
+        
+
+
+       
+        
+    def on_enter(self, *args):
+            
+        #* MAKES THE PAGE ONLY WHEN THE USER ENTERS IT
+        if "page" in self.ids: 
+            self.fade_effect() 
+            self.ids.page.start()
+
+            
+    def on_leave(self, *args):
+        #* the screen is inactive no need for the widget
+        if "page" in self.ids:
+            
+            
+            if self.ids.page.checking:
+                self.ids.page.clear_widgets()
+                self.ids.page.checking.cancel()
+
+            self.ids.page.built=False
+class Mojmel_E_pages(MDCarousel):
+    checking=ObjectProperty(None)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.direction='left' 
+        self.built=False
+        self.pdf_path ="PDFs/mojmel_E.pdf"
+        self.page_index = 1
+        self.total_pages = 198
+        self.batch_size =85
+        
+       
+
+    def start(self):
+        if not self.pdf_path:
+            return
+        if not self.built:
+            self.page_index = 1
+            self.total_pages = 198
+            self.batch_size =99
+            self.load_next_pages()
+            self.checking = Clock.schedule_interval(self.check_if_at_end, 0.5)
+            self.built = True
+            
+    def check_if_at_end(self, dt):
+        if self.index == len(self.slides) - 2:
+            self.load_next_pages()        
+
+
+    def load_next_pages(self):
+       
+        self.end_page = self.page_index + self.batch_size - 1
+        
+        try:
+            images = convert_from_path(
+                self.pdf_path,
+                first_page=self.page_index,
+                last_page=self.end_page,
+                size=(800, None)  
+            )
+        except Exception as e:
+            print("Error loading pages:", e)
+            return
+
+        for pil_img in images:
+          
+            buf = BytesIO()
+            pil_img.save(buf, format="PNG")
+            buf.seek(0)
+            core_img = CoreImage(buf, ext="png")
+
+
+            slide = MDFloatLayout(size_hint=(1, 1))
+            img = Image(
+                texture=core_img.texture,
+                allow_stretch=True,
+                keep_ratio=False,
+                size_hint=(1, 1),
+                pos_hint={"center_x": 0.5,"center_y": 0.5}
+            )
+            slide.add_widget(img)
+            self.add_widget(slide)
+
+        self.page_index += self.batch_size
+    def load_section(self, page_number):
+        index = page_number - 1
+        if 0 <= index < len(self.slides):
+            self.index = index
+            return
+        elif index >self.total_pages-1:
+            return
+        else:
+            try:
+                self.load_next_pages()
+                self.load_section(page_number)
+            except RecursionError as e:
+                print(f"page loaded or index exceded : {e}")
+
+
+
 
 class app(MDApp):
-    dark_app=BooleanProperty()
+    dark_app=BooleanProperty(True)
     checking=ObjectProperty(None)
-    def on_start(self):
+    waiting_text_raw=StringProperty("إنتظر قليلا ...")
+    not_available_raw=StringProperty("غير متاح في الوقت الراهن")
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.theme_cls.theme_style="Dark"
-        self.theme_cls.primary_palate="Teal"
+        self.theme_cls.primary_palette = "Amber"
+        self.waiting_text=Arabic_txt_to_desplay(self.waiting_text_raw)
+        self.not_available=Arabic_txt_to_desplay(self.not_available_raw)
+
+
+    def on_start(self):
+
         self.checking=Clock.schedule_once(self.link_mode,1/60)
     
     def on_dark_mode_change(self,instance, value):
@@ -196,7 +1911,7 @@ class app(MDApp):
 
     def link_mode(self,dt):
         try:
-            nav=App.get_running_app().root.ids.nav_bar
+            nav=App.get_running_app().root.ids.main_s.ids.nav_bar
             nav.bind(dark_mode=self.on_dark_mode_change)
 
         except AttributeError as e:
