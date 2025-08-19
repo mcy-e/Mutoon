@@ -1,11 +1,9 @@
 #: import Factory kivy.factory.Factory
 MDScreenManager:
     id:wind_manager
-    MDScreen:
-        name:"main"
-        id:main
-        MainScreen:
-            id:main_s
+    
+   
+   
     MDScreen:
         name:"loading"
         id:loading
@@ -18,8 +16,11 @@ MDScreenManager:
                 halign:"center"
                 font_name:"arb_fnt"
                 font_size:"20sp"
-
-
+    MDScreen:
+        name:"main"
+        id:main
+        MainScreen:
+            id:main_s
 #############################################################################
 #all motoons screens are in here
 #############################################################################
@@ -81,8 +82,6 @@ MDScreenManager:
         orientation: 'horizontal'
         size_hint_y:0.08
         size_hint_x:1
-        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (1.0, 0.973, 0.882, 1)
-        # app.theme_cls.bg_dark if app.theme_cls.theme_style == "Dark" else app.theme_cls.bg_light
 
         MDGridLayout:
             id:options_grid
@@ -93,20 +92,19 @@ MDScreenManager:
                 size_hint_x:1
                 angle: 90
                 theme_text_color:"Custom"
-                text_color:  (0.0, 0.302, 0.251, 1) if not root.dark_mode else (1.0, 0.973, 0.882, 1)
+                text_color:  (0.0, 0.302, 0.251, 1) if not app.dark_app else (1.0, 0.973, 0.882, 1)
             MDIconButton:
                 id:D_L_mode
-                icon:'moon-waning-crescent'
+                icon:'moon-waning-crescent' if app.dark_app else 'weather-sunny'
                 theme_text_color:"Custom"
-                text_color: (0.0, 0.302, 0.251, 1) if not root.dark_mode else (1.0, 0.973, 0.882, 1)
+                text_color: (0.0, 0.302, 0.251, 1) if not app.dark_app else (1.0, 0.973, 0.882, 1)
                 size_hint_x:1
                 opacity:0
                 disabled:True
                 ripple_alpha:0
                 pos_hint:{'center_x':0.5,'center_y':0.5}
                 on_press:
-                    root.dark_mode=not root.dark_mode
-                    root.Switch_mode()
+                    root.Switch_mode(app.dark_app)
                         
             MDIconButton:
                 id:donation
@@ -115,7 +113,7 @@ MDScreenManager:
                 opacity:0
                 ripple_alpha:0
                 theme_text_color:"Custom"
-                text_color: (0.0, 0.302, 0.251, 1) if not root.dark_mode else (1.0, 0.973, 0.882, 1)
+                text_color: (0.0, 0.302, 0.251, 1) if not app.dark_app else (1.0, 0.973, 0.882, 1)
                 disabled:True
                 pos_hint:{'center_x':0.5,'center_y':0.5}
                 on_press: 
@@ -129,7 +127,7 @@ MDScreenManager:
                 ripple_alpha:0
                 disabled:True
                 theme_text_color:"Custom"
-                text_color: (0.0, 0.302, 0.251, 1) if not root.dark_mode else (1.0, 0.973, 0.882, 1)
+                text_color: (0.0, 0.302, 0.251, 1) if not app.dark_app else (1.0, 0.973, 0.882, 1)
                 on_press: Factory.Info_popup().open()
                 pos_hint:{'center_x':0.5,'center_y':0.5}
             MDIconButton:
@@ -141,7 +139,7 @@ MDScreenManager:
                 ripple_alpha:0
                 pos_hint:{'center_x':0.5,'center_y':0.5}
                 theme_text_color:"Custom"
-                text_color: (0.0, 0.302, 0.251, 1) if not root.dark_mode else (1.0, 0.973, 0.882, 1)
+                text_color: (0.0, 0.302, 0.251, 1) if not app.dark_app else (1.0, 0.973, 0.882, 1)
                 on_press: Factory.Socials_popup().open()
 
 
@@ -153,7 +151,7 @@ MDScreenManager:
         MDBottomNavigation:
             id: nav_parent
             on_current: root.current_tab = self.current
-            panel_color: (0.0, 0.302, 0.251, 1) if root.dark_mode else (1.0, 0.973, 0.882, 1)
+            panel_color: (0.0, 0.302, 0.251, 1) if app.dark_app else (1.0, 0.973, 0.882, 1)
 
             MDBottomNavigationItem:
                 id: mtn
@@ -354,9 +352,8 @@ MDScreenManager:
                                 self.opacity=0
                                 root.ids.menu_btn.opacity=0
                                 root.ids.title.opacity=0
-                                
-                            on_release:
-                                app.root.current="main"
+                                app.root.current="main"                                
+                            
                                 
                                 
 
@@ -562,9 +559,8 @@ MDScreenManager:
                                 self.opacity=0
                                 root.ids.menu_btn.opacity=0
                                 root.ids.title.opacity=0
-                                
-                            on_release:
-                                app.root.current="main"
+                                app.root.current="main"                                
+                            
                                 
                                 
 
@@ -673,9 +669,8 @@ MDScreenManager:
                                 self.opacity=0
                                 root.ids.menu_btn.opacity=0
                                 root.ids.title.opacity=0
-                                
-                            on_release:
-                                app.root.current="main"
+                                app.root.current="main"                                
+                            
                                 
                                 
 
@@ -947,9 +942,8 @@ MDScreenManager:
                                 self.opacity=0
                                 root.ids.menu_btn.opacity=0
                                 root.ids.title.opacity=0
-                                
-                            on_release:
-                                app.root.current="main"
+                                app.root.current="main"                                
+                            
                                 
                                 
 
@@ -1281,9 +1275,8 @@ MDScreenManager:
                                 self.opacity=0
                                 root.ids.menu_btn.opacity=0
                                 root.ids.title.opacity=0
-                                
-                            on_release:
-                                app.root.current="main"
+                                app.root.current="main"                                
+                            
                                 
                                 
 
@@ -1708,9 +1701,8 @@ MDScreenManager:
                                 self.opacity=0
                                 root.ids.menu_btn.opacity=0
                                 root.ids.title.opacity=0
-                                
-                            on_release:
-                                app.root.current="main"
+                                app.root.current="main"                                
+                            
                                 
                                 
 
@@ -1859,9 +1851,8 @@ MDScreenManager:
                                 self.opacity=0
                                 root.ids.menu_btn.opacity=0
                                 root.ids.title.opacity=0
-                                
-                            on_release:
-                                app.root.current="main"
+                                app.root.current="main"                                
+                            
                                 
                                 
 
@@ -2197,9 +2188,8 @@ MDScreenManager:
                                 self.opacity=0
                                 root.ids.menu_btn.opacity=0
                                 root.ids.title.opacity=0
-                                
-                            on_release:
-                                app.root.current="main"
+                                app.root.current="main"                                
+                            
                                 
                                 
 
@@ -2313,9 +2303,8 @@ MDScreenManager:
                                 self.opacity=0
                                 root.ids.menu_btn.opacity=0
                                 root.ids.title.opacity=0
-                                
-                            on_release:
-                                app.root.current="main"
+                                app.root.current="main"                                
+                            
                                 
                                 
 
@@ -2436,9 +2425,8 @@ MDScreenManager:
                                 self.opacity=0
                                 root.ids.menu_btn.opacity=0
                                 root.ids.title.opacity=0
-                                
-                            on_release:
-                                app.root.current="main"
+                                app.root.current="main"                                
+                            
                                 
                                 
 
@@ -2632,7 +2620,7 @@ MDScreenManager:
                     text_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
                     icon_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
                     line_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
-                    on_release:root.routes("https://mail.google.com/mail/?view=cm&to=reffaschouaib@gmail.com")
+                    on_release:root.routes("mailto:reffaschouaib@gamil.com")
             MDRaisedButton:
                 text: root.close_txt
                 font_name:"fonts/NotoKufiArabic-ExtraBold.ttf"

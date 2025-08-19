@@ -10,43 +10,46 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.floatlayout import MDFloatLayout
 from kivymd.uix.label import MDLabel
+from kivy.metrics import dp 
 from kivy.core.text import LabelBase
 from kivy.properties import StringProperty,BooleanProperty,ObjectProperty,DictProperty,ListProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.animation import Animation
 from kivy.clock import Clock
-from kivymd.uix.behaviors import RotateBehavior
-from kivymd.uix.screenmanager import MDScreenManager
 from kivy.uix.screenmanager import FadeTransition 
 from kivymd.uix.carousel import MDCarousel
 from kivy.uix.image import Image
-from kivymd.uix.dialog import MDDialog
-from kivy.core.image import Image as CoreImage
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.screen import MDScreen
-from kivymd.uix.button import MDFloatingActionButtonSpeedDial,MDIconButton,MDRectangleFlatButton
-from kivy.clock import mainthread
+from kivymd.uix.button import MDIconButton,MDRectangleFlatButton
 from kivy.uix.modalview import ModalView
 #* external libs (modules perhaps i say "with a british accent")
 import arabic_reshaper
 from bidi.algorithm import get_display
 from functools import partial
-from pdf2image import convert_from_path
-from io import BytesIO
-from threading import Thread
-import webbrowser
 import random
+from pathlib import Path
+import json
 #*register the font for easy access
 LabelBase.register(name="arb_fnt", fn_regular="fonts/NotoKufiArabic-Black.ttf")
 
+#* disable print statement else time i and everyone should use logging module
+
+import builtins
+#* replace print with nothing function
+builtins.print= lambda *a,**k :None
 
 #! Global Functions
 #* function to formalize the arabic text so you can display
-def Arabic_txt_to_desplay(raw_text):
+def Arabic_txt_to_desplay(raw_text :str) -> str:
     reshaped = arabic_reshaper.reshape(raw_text)
     bidi_text = get_display(reshaped)
     return bidi_text
+
+
+
+   
 #? popups
 class Info_popup(ModalView):
     close_txt_raw = StringProperty("غلق")
@@ -78,10 +81,25 @@ class Socials_popup(ModalView):
         self.close_txt = Arabic_txt_to_desplay(self.close_txt_raw)
         self.main_txt = Arabic_txt_to_desplay(self.main_txt_raw)
 
-    def routes(self,url):
+    import sys
 
-        webbrowser.open(url)
+    if sys.platform == "android":
+        from jnius import autoclass
 
+        Intent = autoclass('android.content.Intent')
+        Uri = autoclass('android.net.Uri')
+        PythonActivity = autoclass('org.kivy.android.PythonActivity')
+
+        def routes(self,url):
+            intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            currentActivity = PythonActivity.mActivity
+            currentActivity.startActivity(intent)
+    else:
+        
+
+        def routes(self,url):
+            import webbrowser
+            webbrowser.open(url)
 
 class Gift_popup(ModalView):
     close_txt_raw = StringProperty("غلق")
@@ -159,7 +177,7 @@ class Options(MDIconButton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.icon='dots-horizontal'
-        # self.options=App.get_running_app().root.ids.nav_bar.ids.options_grid
+        
         #* remove that boring ripple effect
         self.ripple_alpha=0
         
@@ -220,7 +238,7 @@ class MainScreen(MDBoxLayout):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 class BottomNavBar(MDBoxLayout):
-    dark_mode=BooleanProperty(True)
+   
     mtn_active=BooleanProperty(True)
     current_tab = StringProperty("mutoon")
     def __init__(self, *args, **kwargs):
@@ -235,21 +253,19 @@ class BottomNavBar(MDBoxLayout):
 
 
     try:    
-        def Switch_mode(self):
-            theme_modes=self.ids.D_L_mode
-
-            if self.dark_mode:
+        def Switch_mode(self,dr_mode):
+            dr_mode=not dr_mode
+            App.get_running_app().dark_app= not App.get_running_app().dark_app
+            if dr_mode:
+                
                 App.get_running_app().theme_cls.theme_style='Dark'
-                
-
-                
-                theme_modes.icon='moon-waning-crescent'
+                App.get_running_app().root.ids.mojmel_E.add_ferhas("dark")
             else:
+               
+
                 App.get_running_app().theme_cls.theme_style='Light'
+                App.get_running_app().root.ids.mojmel_E.add_ferhas("light")
                 
-
-                theme_modes.icon='weather-sunny'
-
 
     except (AttributeError) as e :
         print(f"Error {e}")        
@@ -288,29 +304,16 @@ class Muton_btns(MDGridLayout):
    
     def go_to_ibn_b(self):
         App.get_running_app().root.ids.ibn_b.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="loading"
-        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.ibn_b.ids.page.start(),0.1)
-        Clock.schedule_once(self.loaded_ibn_b,1)
-    def loaded_ibn_b(self,dt):
-        App.get_running_app().root.ids.ibn_b.manager.transition=FadeTransition(duration=1/60)
         App.get_running_app().root.current="ibn_b"
+
+
 
     #* i didn't want to change the method  so i added it a loading screen to load all pages 
     
     def go_to_al_shat(self):
-        App.get_running_app().root.ids.al_shat.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="loading"
-        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.al_shat.ids.page.start(),0.1)
-        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.al_shat.ids.page.load_next_pages(),0.11)
-        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.al_shat.ids.page.load_next_pages(),0.12)
-        Clock.schedule_once(self.loaded_al_shat,0)
-    def loaded_al_shat(self,dt):
-        
         App.get_running_app().root.ids.al_shat.manager.transition=FadeTransition(duration=1/10)
         App.get_running_app().root.current="al_shat"
-        
-   
-   
+     
    
     def go_to_mojmel(self):
         App.get_running_app().root.ids.mojmel.manager.transition=FadeTransition(duration=1/60)
@@ -343,22 +346,12 @@ class Explanation_of_Muton_btns(MDGridLayout):
     #* changing screens
     def go_to_tohfa_E(self):
         App.get_running_app().root.ids.tohfa_E.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="loading"
-        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.tohfa_E.ids.page.start(),1/10)
-        Clock.schedule_once(self.loaded_tohfa_E,1)
-    def loaded_tohfa_E(self,dt):
-        App.get_running_app().root.ids.tohfa_E.manager.transition=FadeTransition(duration=1/60)
         App.get_running_app().root.current="to7fa_E"
 
     def go_to_Dj_E(self):
-
-        App.get_running_app().root.ids.Dj_E.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="loading"
-        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.Dj_E.ids.page.start(),1/10)
-        Clock.schedule_once(self.loaded_Dj_E,1)
-    def loaded_Dj_E(self,dt):
         App.get_running_app().root.ids.Dj_E.manager.transition=FadeTransition(duration=1/60)
         App.get_running_app().root.current="Dj_E"
+
     def go_to_ibn_b_E(self):
         App.get_running_app().root.ids.ibn_b_E.manager.transition=FadeTransition(duration=1/60)
         App.get_running_app().root.current="ibn_b_E"
@@ -367,16 +360,11 @@ class Explanation_of_Muton_btns(MDGridLayout):
         App.get_running_app().root.current="al_shat_E"
 
     def go_to_mojmel_E(self):
-        
-        App.get_running_app().root.ids.Dj_E.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="loading"
-        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.mojmel_E.ids.page.start(),1/10)
-        Clock.schedule_once(lambda dt: App.get_running_app().root.ids.mojmel_E.ids.page.load_next_pages(),0.11)
-        Clock.schedule_once(self.loaded_mojmel_E,1)
-    
-    def loaded_mojmel_E(self,dt):
         App.get_running_app().root.ids.mojmel_E.manager.transition=FadeTransition(duration=1/60)
         App.get_running_app().root.current="mojmel_E"
+    
+
+
 
 #*Screens init for py
 class TohfaScreen(MDScreen):
@@ -401,14 +389,9 @@ class TohfaScreen(MDScreen):
         self.menu=self.ids.menu_btn
         self.title=self.ids.title
        
-        self.fade_out.start(self.back)
-        self.fade_out.start(self.menu)
-        self.fade_out.start(self.title)
-  
-        Clock.schedule_once(lambda dt :self.fade_in.start(self.back),0.5)
-        Clock.schedule_once(lambda dt :self.fade_in.start(self.menu),0.5)
-        Clock.schedule_once(lambda dt :self.fade_in.start(self.title),0.5)
-      
+        self.fade_in.start(self.back)
+        self.fade_in.start(self.menu)
+        self.fade_in.start(self.title)
         
 
 
@@ -425,16 +408,16 @@ class TohfaScreen(MDScreen):
         #* the screen is inactive no need for the widget
         if "page" in self.ids:
             
-            self.ids.page.clear_widgets()
+            
             self.ids.page.checking.cancel()
-            self.ids.page.built=False
+            
 class Tohfa_pages(MDCarousel):
     checking=ObjectProperty(None)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.direction='left' 
         self.built=False
-        self.pdf_path ="PDFs/To7fa.pdf"
+        self.img_path ="PDF_Images/To7fa"
        
 
     def start(self):
@@ -447,58 +430,51 @@ class Tohfa_pages(MDCarousel):
             
             self.checking=Clock.schedule_interval(self.check_if_at_end, 0.5)
             self.built=True
+    
     def check_if_at_end(self, dt):
-        if self.index == len(self.slides) - 2:
-            self.load_next_pages()        
-
+        if self.index >= len(self.slides) - 1:
+            self.load_next_pages()
 
     def load_next_pages(self):
-        self.end_page = self.page_index + self.batch_size - 1
-
         try:
-            images = convert_from_path(
-                self.pdf_path,
-                first_page=self.page_index,
-                last_page=self.end_page,
-                size=(800, None)  
-            )
+            if self.page_index > self.total_pages:
+                return  
+
+            self.end_page = min(self.page_index + self.batch_size - 1, self.total_pages)
+
+            for i in range(self.page_index, self.end_page + 1): 
+                path = Path(f'{self.img_path}/page_{i:03d}.png')
+                if path.exists():
+                    slide = MDFloatLayout(size_hint=(1, 1))
+                    img = Image(
+                        source=str(path),
+                        allow_stretch=True,
+                        keep_ratio=False,
+                        size_hint=(1, 1),
+                        pos_hint={"center_x": 0.5, "center_y": 0.5}
+                    )
+                    slide.add_widget(img)
+                    self.add_widget(slide)
+                    print(f"Added slide {i}")
+                else:
+                    print(f"Page not found: {path}")
+
+            print("Successfully loaded pages")
+            self.page_index = self.end_page + 1 
+
         except Exception as e:
-            print("Error loading pages:", e)
-            return
-
-        for pil_img in images:
-          
-            buf = BytesIO()
-            pil_img.save(buf, format="PNG")
-            buf.seek(0)
-            core_img = CoreImage(buf, ext="png")
-
-
-            slide = MDFloatLayout(size_hint=(1, 1))
-            img = Image(
-                texture=core_img.texture,
-                allow_stretch=True,
-                keep_ratio=False,
-                size_hint=(1, 1),
-                pos_hint={"center_x": 0.5,"center_y": 0.5}
-            )
-            slide.add_widget(img)
-            self.add_widget(slide)
-
-        self.page_index += self.batch_size
+            print(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
+
+        while index >= len(self.slides) and self.page_index <= self.total_pages:
+            self.load_next_pages()  
+
         if 0 <= index < len(self.slides):
             self.index = index
-            return
-        elif index >self.total_pages-1:
-            return
         else:
-            try:
-                self.load_next_pages()
-                self.load_section(page_number)
-            except RecursionError as e:
-                print(f"page loaded or index exceded : {e}")
+            print(f"Page {page_number} cannot be loaded.")
+
 
 class MojmelScreen(MDScreen):
     title_raw=StringProperty("مجمل إعتقاد السلف")
@@ -522,14 +498,9 @@ class MojmelScreen(MDScreen):
         self.menu=self.ids.menu_btn
         self.title=self.ids.title
        
-        self.fade_out.start(self.back)
-        self.fade_out.start(self.menu)
-        self.fade_out.start(self.title)
-  
-        Clock.schedule_once(lambda dt :self.fade_in.start(self.back),0.5)
-        Clock.schedule_once(lambda dt :self.fade_in.start(self.menu),0.5)
-        Clock.schedule_once(lambda dt :self.fade_in.start(self.title),0.5)
-      
+        self.fade_in.start(self.back)
+        self.fade_in.start(self.menu)
+        self.fade_in.start(self.title)
         
 
 
@@ -546,16 +517,17 @@ class MojmelScreen(MDScreen):
         #* the screen is inactive no need for the widget
         if "page" in self.ids:
             
-            self.ids.page.clear_widgets()
+            
             self.ids.page.checking.cancel()
-            self.ids.page.built=False
+            
 class Mojmel_pages(MDCarousel):
     checking=ObjectProperty(None)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.direction='left' 
         self.built=False
-        self.pdf_path ="PDFs/mojmel.pdf"
+        self.img_path ="PDF_Images/mojmel"
+    
        
 
     def start(self):
@@ -567,58 +539,50 @@ class Mojmel_pages(MDCarousel):
             Clock.schedule_once(lambda dt: self.load_next_pages(), 0)
             self.checking=Clock.schedule_interval(self.check_if_at_end, 0.5)
             self.built=True
+    
     def check_if_at_end(self, dt):
-        if self.index == len(self.slides) - 2:
-            self.load_next_pages()        
-
+        if self.index >= len(self.slides) - 1:
+            self.load_next_pages()
 
     def load_next_pages(self):
-        self.end_page = self.page_index + self.batch_size - 1
-
         try:
-            images = convert_from_path(
-                self.pdf_path,
-                first_page=self.page_index,
-                last_page=self.end_page,
-                size=(800, None)  
-            )
+            if self.page_index > self.total_pages:
+                return  
+
+            self.end_page = min(self.page_index + self.batch_size - 1, self.total_pages)
+
+            for i in range(self.page_index, self.end_page + 1): 
+                path = Path(f'{self.img_path}/page_{i:03d}.png')
+                if path.exists():
+                    slide = MDFloatLayout(size_hint=(1, 1))
+                    img = Image(
+                        source=str(path),
+                        allow_stretch=True,
+                        keep_ratio=False,
+                        size_hint=(1, 1),
+                        pos_hint={"center_x": 0.5, "center_y": 0.5}
+                    )
+                    slide.add_widget(img)
+                    self.add_widget(slide)
+                    print(f"Added slide {i}")
+                else:
+                    print(f"Page not found: {path}")
+
+            print("Successfully loaded pages")
+            self.page_index = self.end_page + 1 
+
         except Exception as e:
-            print("Error loading pages:", e)
-            return
-
-        for pil_img in images:
-          
-            buf = BytesIO()
-            pil_img.save(buf, format="PNG")
-            buf.seek(0)
-            core_img = CoreImage(buf, ext="png")
-
-
-            slide = MDFloatLayout(size_hint=(1, 1))
-            img = Image(
-                texture=core_img.texture,
-                allow_stretch=True,
-                keep_ratio=False,
-                size_hint=(1, 0.9),
-                pos_hint={"center_x": 0.5,"center_y": 0.5}
-            )
-            slide.add_widget(img)
-            self.add_widget(slide)
-
-        self.page_index += self.batch_size
+            print(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
+
+        while index >= len(self.slides) and self.page_index <= self.total_pages:
+            self.load_next_pages()  
+
         if 0 <= index < len(self.slides):
             self.index = index
-            return
-        elif index >self.total_pages-1:
-            return
         else:
-            try:
-                self.load_next_pages()
-                self.load_section(page_number)
-            except RecursionError as e:
-                print(f"page loaded or index exceded : {e}")
+            print(f"Page {page_number} cannot be loaded.")
 
 class DjScreen(MDScreen):
     title_raw=StringProperty("المقدمة الجزرية")
@@ -659,14 +623,9 @@ class DjScreen(MDScreen):
         self.menu=self.ids.menu_btn
         self.title=self.ids.title
        
-        self.fade_out.start(self.back)
-        self.fade_out.start(self.menu)
-        self.fade_out.start(self.title)
-  
-        Clock.schedule_once(lambda dt :self.fade_in.start(self.back),0.5)
-        Clock.schedule_once(lambda dt :self.fade_in.start(self.menu),0.5)
-        Clock.schedule_once(lambda dt :self.fade_in.start(self.title),0.5)
-      
+        self.fade_in.start(self.back)
+        self.fade_in.start(self.menu)
+        self.fade_in.start(self.title)
         
 
 
@@ -683,16 +642,17 @@ class DjScreen(MDScreen):
         #* the screen is inactive no need for the widget
         if "page" in self.ids:
             
-            self.ids.page.clear_widgets()
+            
             self.ids.page.checking.cancel()
-            self.ids.page.built=False
+            
 class Dj_pages(MDCarousel):
     checking=ObjectProperty(None)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.direction='left' 
         self.built=False
-        self.pdf_path ="PDFs/Dj.pdf"
+        self.img_path ="PDF_Images/Dj"
+      
        
 
     def start(self):
@@ -704,58 +664,51 @@ class Dj_pages(MDCarousel):
             Clock.schedule_once(lambda dt: self.load_next_pages(), 0)
             self.checking=Clock.schedule_interval(self.check_if_at_end, 0.5)
             self.built=True
+   
     def check_if_at_end(self, dt):
-        if self.index == len(self.slides) - 2:
-            self.load_next_pages()        
-
+        if self.index >= len(self.slides) - 1:
+            self.load_next_pages()
 
     def load_next_pages(self):
-        self.end_page = self.page_index + self.batch_size - 1
-
         try:
-            images = convert_from_path(
-                self.pdf_path,
-                first_page=self.page_index,
-                last_page=self.end_page,
-                size=(800, None)  
-            )
+            if self.page_index > self.total_pages:
+                return  
+
+            self.end_page = min(self.page_index + self.batch_size - 1, self.total_pages)
+
+            for i in range(self.page_index, self.end_page + 1): 
+                path = Path(f'{self.img_path}/page_{i:03d}.png')
+                if path.exists():
+                    slide = MDFloatLayout(size_hint=(1, 1))
+                    img = Image(
+                        source=str(path),
+                        allow_stretch=True,
+                        keep_ratio=False,
+                        size_hint=(1, 1),
+                        pos_hint={"center_x": 0.5, "center_y": 0.5}
+                    )
+                    slide.add_widget(img)
+                    self.add_widget(slide)
+                    print(f"Added slide {i}")
+                else:
+                    print(f"Page not found: {path}")
+
+            print("Successfully loaded pages")
+            self.page_index = self.end_page + 1 
+
         except Exception as e:
-            print("Error loading pages:", e)
-            return
-
-        for pil_img in images:
-          
-            buf = BytesIO()
-            pil_img.save(buf, format="PNG")
-            buf.seek(0)
-            core_img = CoreImage(buf, ext="png")
-
-
-            slide = MDFloatLayout(size_hint=(1, 1))
-            img = Image(
-                texture=core_img.texture,
-                allow_stretch=True,
-                keep_ratio=False,
-                size_hint=(1, 1),
-                pos_hint={"center_x": 0.5,"center_y": 0.5}
-            )
-            slide.add_widget(img)
-            self.add_widget(slide)
-
-        self.page_index += self.batch_size
+            print(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
+
+        while index >= len(self.slides) and self.page_index <= self.total_pages:
+            self.load_next_pages()  
+
         if 0 <= index < len(self.slides):
             self.index = index
-            return
-        elif index >self.total_pages-1:
-            return
         else:
-            try:
-                self.load_next_pages()
-                self.load_section(page_number)
-            except RecursionError as e:
-                print(f"page loaded or index exceded : {e}")
+            print(f"Page {page_number} cannot be loaded.")
+
 
 class IBN_BScreen(MDScreen):
     title_raw=StringProperty("الدرر اللوامع")
@@ -823,16 +776,17 @@ class IBN_BScreen(MDScreen):
         #* the screen is inactive no need for the widget
         if "page" in self.ids:
             
-            self.ids.page.clear_widgets()
-            self.ids.page.checking.cancel()
-            self.ids.page.built=False
+            
+            if self.ids.page.checking:
+                self.ids.page.checking.cancel()
+            
 class IBN_B_pages(MDCarousel):
     checking=ObjectProperty(None)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.direction='left' 
         self.built=False
-        self.pdf_path ="PDFs/ibn_b.pdf"
+        self.img_path ="PDF_Images/ibn_b"
         self.page_index = 1
         self.total_pages = 47
        
@@ -843,62 +797,51 @@ class IBN_B_pages(MDCarousel):
             self.total_pages = 47
             self.batch_size =47
             self.load_next_pages()
-            self.checking = Clock.schedule_interval(self.check_if_at_end, 0.5)
             self.built = True
     def check_if_at_end(self, dt):
-        if self.index == len(self.slides) - 2:
-            
-            self.load_next_pages()        
-
+        if self.index >= len(self.slides) - 1:
+            self.load_next_pages()
 
     def load_next_pages(self):
-       
-        self.end_page = self.page_index + self.batch_size - 1
-        
         try:
-            images = convert_from_path(
-                self.pdf_path,
-                first_page=self.page_index,
-                last_page=self.end_page,
-                size=(None, None)  
-            )
+            if self.page_index > self.total_pages:
+                return  
+
+            self.end_page = min(self.page_index + self.batch_size - 1, self.total_pages)
+
+            for i in range(self.page_index, self.end_page + 1): 
+                path = Path(f'{self.img_path}/page_{i:03d}.png')
+                if path.exists():
+                    slide = MDFloatLayout(size_hint=(1, 1))
+                    img = Image(
+                        source=str(path),
+                        allow_stretch=True,
+                        keep_ratio=False,
+                        size_hint=(1, 1),
+                        pos_hint={"center_x": 0.5, "center_y": 0.5}
+                    )
+                    slide.add_widget(img)
+                    self.add_widget(slide)
+                    print(f"Added slide {i}")
+                else:
+                    print(f"Page not found: {path}")
+
+            print("Successfully loaded pages")
+            self.page_index = self.end_page + 1 
+
         except Exception as e:
-            print("Error loading pages:", e)
-            return
-
-        for pil_img in images:
-          
-            buf = BytesIO()
-            pil_img.save(buf, format="PNG")
-            buf.seek(0)
-            core_img = CoreImage(buf, ext="png")
-
-
-            slide = MDFloatLayout(size_hint=(1, 1))
-            img = Image(
-                texture=core_img.texture,
-                allow_stretch=True,
-                keep_ratio=False,
-                size_hint=(1, 1),
-                pos_hint={"center_x": 0.5,"center_y": 0.5}
-            )
-            slide.add_widget(img)
-            self.add_widget(slide)
-
-        self.page_index += self.batch_size
+            print(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
+
+        while index >= len(self.slides) and self.page_index <= self.total_pages:
+            self.load_next_pages()  
+
         if 0 <= index < len(self.slides):
             self.index = index
-            return
-        elif index >self.total_pages-1:
-            return
         else:
-            try:
-                self.load_next_pages()
-                self.load_section(page_number)
-            except RecursionError as e:
-                print(f"page loaded or index exceded : {e}")
+            print(f"Page {page_number} cannot be loaded.")
+
 
 
 class AL_SHATScreen(MDScreen):
@@ -975,16 +918,16 @@ class AL_SHATScreen(MDScreen):
         #* the screen is inactive no need for the widget
         if "page" in self.ids:
             
-            self.ids.page.clear_widgets()
+            
             self.ids.page.checking.cancel()
-            self.ids.page.built=False
+            
 class AL_SHAT_pages(MDCarousel):
     checking=ObjectProperty(None)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.direction='left' 
         self.built=False
-        self.pdf_path ="PDFs/al_shat.pdf"
+        self.img_path ="PDF_Images/al_shat"
         self.page_index = 1
         self.total_pages = 95
         
@@ -1000,61 +943,49 @@ class AL_SHAT_pages(MDCarousel):
             self.built = True
             
     def check_if_at_end(self, dt):
-        if self.index == len(self.slides) - 2:
-            self.load_next_pages()        
-
+        if self.index >= len(self.slides) - 1:
+            self.load_next_pages()
 
     def load_next_pages(self):
-       
-        self.end_page = self.page_index + self.batch_size - 1
-        
         try:
-            images = convert_from_path(
-                self.pdf_path,
-                first_page=self.page_index,
-                last_page=self.end_page,
-                size=(None, None)  
-            )
+            if self.page_index > self.total_pages:
+                return  
+
+            self.end_page = min(self.page_index + self.batch_size - 1, self.total_pages)
+
+            for i in range(self.page_index, self.end_page + 1): 
+                path = Path(f'{self.img_path}/page_{i:03d}.png')
+                if path.exists():
+                    slide = MDFloatLayout(size_hint=(1, 1))
+                    img = Image(
+                        source=str(path),
+                        allow_stretch=True,
+                        keep_ratio=False,
+                        size_hint=(1, 1),
+                        pos_hint={"center_x": 0.5, "center_y": 0.5}
+                    )
+                    slide.add_widget(img)
+                    self.add_widget(slide)
+                    print(f"Added slide {i}")
+                else:
+                    print(f"Page not found: {path}")
+
+            print("Successfully loaded pages")
+            self.page_index = self.end_page + 1 
+
         except Exception as e:
-            print("Error loading pages:", e)
-            return
-
-        for pil_img in images:
-          
-            buf = BytesIO()
-            pil_img.save(buf, format="PNG")
-            buf.seek(0)
-            core_img = CoreImage(buf, ext="png")
-
-
-            slide = MDFloatLayout(size_hint=(1, 1))
-            img = Image(
-                texture=core_img.texture,
-                allow_stretch=True,
-                keep_ratio=False,
-                size_hint=(1, 1),
-                pos_hint={"center_x": 0.5,"center_y": 0.5}
-            )
-            slide.add_widget(img)
-            self.add_widget(slide)
-
-        self.page_index += self.batch_size
-
-
-
+            print(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
+
+        while index >= len(self.slides) and self.page_index <= self.total_pages:
+            self.load_next_pages()  
+
         if 0 <= index < len(self.slides):
             self.index = index
-            return
-        elif index >self.total_pages-1:
-            return
         else:
-            try:
-                self.load_next_pages()
-                self.load_section(page_number)
-            except RecursionError as e:
-                print(f"page loaded or index exceded : {e}")
+            print(f"Page {page_number} cannot be loaded.")
+
 
 
 #* for Explanations
@@ -1109,16 +1040,16 @@ class Tohfa_E_Screen(MDScreen):
         #* the screen is inactive no need for the widget
         if "page" in self.ids:
             
-            self.ids.page.clear_widgets()
+            
             self.ids.page.checking.cancel()
-            self.ids.page.built=False
+            
 class Tohfa_E_pages(MDCarousel):
     checking=ObjectProperty(None)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.direction='left' 
         self.built=False
-        self.pdf_path ="PDFs/To7fa_E.pdf"
+        self.img_path ="PDF_Images/To7fa_E"
         self.page_index = 1
         self.total_pages = 58
         
@@ -1135,59 +1066,48 @@ class Tohfa_E_pages(MDCarousel):
             self.built = True
             
     def check_if_at_end(self, dt):
-        if self.index == len(self.slides) - 2:
-            self.load_next_pages()        
-
+        if self.index >= len(self.slides) - 1:
+            self.load_next_pages()
 
     def load_next_pages(self):
-       
-        self.end_page = self.page_index + self.batch_size - 1
-        
         try:
-            images = convert_from_path(
-                self.pdf_path,
-                first_page=self.page_index,
-                last_page=self.end_page,
-                size=(800, None)  
-            )
+            if self.page_index > self.total_pages:
+                return  
+
+            self.end_page = min(self.page_index + self.batch_size - 1, self.total_pages)
+
+            for i in range(self.page_index, self.end_page + 1): 
+                path = Path(f'{self.img_path}/page_{i:03d}.png')
+                if path.exists():
+                    slide = MDFloatLayout(size_hint=(1, 1))
+                    img = Image(
+                        source=str(path),
+                        allow_stretch=True,
+                        keep_ratio=False,
+                        size_hint=(1, 1),
+                        pos_hint={"center_x": 0.5, "center_y": 0.5}
+                    )
+                    slide.add_widget(img)
+                    self.add_widget(slide)
+                    print(f"Added slide {i}")
+                else:
+                    print(f"Page not found: {path}")
+
+            print("Successfully loaded pages")
+            self.page_index = self.end_page + 1 
+
         except Exception as e:
-            print("Error loading pages:", e)
-            return
-
-        for pil_img in images:
-          
-            buf = BytesIO()
-            pil_img.save(buf, format="PNG")
-            buf.seek(0)
-            core_img = CoreImage(buf, ext="png")
-
-
-            slide = MDFloatLayout(size_hint=(1, 1))
-            img = Image(
-                texture=core_img.texture,
-                allow_stretch=True,
-                keep_ratio=False,
-                size_hint=(1, 1),
-                pos_hint={"center_x": 0.5,"center_y": 0.5}
-            )
-            slide.add_widget(img)
-            self.add_widget(slide)
-
-        self.page_index += self.batch_size
+            print(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
+
+        while index >= len(self.slides) and self.page_index <= self.total_pages:
+            self.load_next_pages()  
+
         if 0 <= index < len(self.slides):
             self.index = index
-            return
-        elif index >self.total_pages-1:
-            return
         else:
-            try:
-                self.load_next_pages()
-                self.load_section(page_number)
-            except RecursionError as e:
-                print(f"page loaded or index exceded : {e}")
-
+            print(f"Page {page_number} cannot be loaded.")
 class Dj_E_Screen(MDScreen):
     title_raw=StringProperty("شرح الجزرية")
     sections_raw=ListProperty( [
@@ -1256,87 +1176,79 @@ class Dj_E_Screen(MDScreen):
             
             
             if self.ids.page.checking:
-                self.ids.page.clear_widgets()
+                
                 self.ids.page.checking.cancel()
 
-            self.ids.page.built=False
+            
 class Dj_E_pages(MDCarousel):
     checking=ObjectProperty(None)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.direction='left' 
         self.built=False
-        self.pdf_path ="PDFs/Dj_E.pdf"
+        self.img_path ="PDF_Images/Dj_E"
         self.page_index = 1
-        self.total_pages = 158
+        self.total_pages = 159
         
        
 
     def start(self):
-        if self.pdf_path=="":
+        if self.img_path=="":
             return
         if not self.built:
             self.page_index = 1
-            self.total_pages = 158
-            self.batch_size =158
+            self.total_pages = 159
+            self.batch_size =159
             self.load_next_pages()
             self.checking = Clock.schedule_interval(self.check_if_at_end, 0.5)
             self.built = True
             
     def check_if_at_end(self, dt):
-        if self.index == len(self.slides) - 2:
-            self.load_next_pages()        
-
+        if self.index >= len(self.slides) - 1:
+            self.load_next_pages()
 
     def load_next_pages(self):
-       
-        self.end_page = self.page_index + self.batch_size - 1
-        
         try:
-            images = convert_from_path(
-                self.pdf_path,
-                first_page=self.page_index,
-                last_page=self.end_page,
-                size=(800, None)  
-            )
+            if self.page_index > self.total_pages:
+                return  
+
+            self.end_page = min(self.page_index + self.batch_size - 1, self.total_pages)
+
+            for i in range(self.page_index, self.end_page + 1): 
+                path = Path(f'{self.img_path}/page_{i:03d}.png')
+                if path.exists():
+                    slide = MDFloatLayout(size_hint=(1, 1))
+                    img = Image(
+                        source=str(path),
+                        allow_stretch=True,
+                        keep_ratio=False,
+                        size_hint=(1, 1),
+                        pos_hint={"center_x": 0.5, "center_y": 0.5}
+                    )
+                    slide.add_widget(img)
+                    self.add_widget(slide)
+                    print(f"Added slide {i}")
+                else:
+                    print(f"Page not found: {path}")
+
+            print("Successfully loaded pages")
+            self.page_index = self.end_page + 1 
+
         except Exception as e:
-            print("Error loading pages:", e)
-            return
-
-        for pil_img in images:
-          
-            buf = BytesIO()
-            pil_img.save(buf, format="PNG")
-            buf.seek(0)
-            core_img = CoreImage(buf, ext="png")
-
-
-            slide = MDFloatLayout(size_hint=(1, 1))
-            img = Image(
-                texture=core_img.texture,
-                allow_stretch=True,
-                keep_ratio=False,
-                size_hint=(1, 1),
-                pos_hint={"center_x": 0.5,"center_y": 0.5}
-            )
-            slide.add_widget(img)
-            self.add_widget(slide)
-
-        self.page_index += self.batch_size
+            print(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
+
+        while index >= len(self.slides) and self.page_index <= self.total_pages:
+            self.load_next_pages()  
+
         if 0 <= index < len(self.slides):
             self.index = index
-            return
-        elif index >self.total_pages-1:
-            return
         else:
-            try:
-                self.load_next_pages()
-                self.load_section(page_number)
-            except RecursionError as e:
-                print(f"page loaded or index exceded : {e}")
+            print(f"Page {page_number} cannot be loaded.")
 
+
+#* not added
 class IBN_B_E_Screen(MDScreen):
     title_raw=StringProperty("شرح الدرر اللوامع")
     sections_raw=ListProperty()
@@ -1383,24 +1295,24 @@ class IBN_B_E_Screen(MDScreen):
             
             
             if self.ids.page.checking:
-                self.ids.page.clear_widgets()
+                
                 self.ids.page.checking.cancel()
             
-            self.ids.page.built=False
+            
 class IBN_B_E_pages(MDCarousel):
     checking=ObjectProperty(None)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.direction='left' 
         self.built=False
-        self.pdf_path =""
-        self.page_index = 1
+        self.img_path =""
+        self.pag_index = 1
         self.total_pages = 58
         
        
 
     def start(self):
-        if not self.pdf_path:
+        if not self.img_path:   
             return
         if not self.built:
             self.page_index = 1
@@ -1411,59 +1323,50 @@ class IBN_B_E_pages(MDCarousel):
             self.built = True
             
     def check_if_at_end(self, dt):
-        if self.index == len(self.slides) - 2:
-            self.load_next_pages()        
-
+        if self.index >= len(self.slides) - 1:
+            self.load_next_pages()
 
     def load_next_pages(self):
-       
-        self.end_page = self.page_index + self.batch_size - 1
-        
         try:
-            images = convert_from_path(
-                self.pdf_path,
-                first_page=self.page_index,
-                last_page=self.end_page,
-                size=(800, None)  
-            )
+            if self.page_index > self.total_pages:
+                return  
+
+            self.end_page = min(self.page_index + self.batch_size - 1, self.total_pages)
+
+            for i in range(self.page_index, self.end_page + 1): 
+                path = Path(f'{self.img_path}/page_{i:03d}.png')
+                if path.exists():
+                    slide = MDFloatLayout(size_hint=(1, 1))
+                    img = Image(
+                        source=str(path),
+                        allow_stretch=True,
+                        keep_ratio=False,
+                        size_hint=(1, 1),
+                        pos_hint={"center_x": 0.5, "center_y": 0.5}
+                    )
+                    slide.add_widget(img)
+                    self.add_widget(slide)
+                    print(f"Added slide {i}")
+                else:
+                    print(f"Page not found: {path}")
+
+            print("Successfully loaded pages")
+            self.page_index = self.end_page + 1 
+
         except Exception as e:
-            print("Error loading pages:", e)
-            return
-
-        for pil_img in images:
-          
-            buf = BytesIO()
-            pil_img.save(buf, format="PNG")
-            buf.seek(0)
-            core_img = CoreImage(buf, ext="png")
-
-
-            slide = MDFloatLayout(size_hint=(1, 1))
-            img = Image(
-                texture=core_img.texture,
-                allow_stretch=True,
-                keep_ratio=False,
-                size_hint=(1, 1),
-                pos_hint={"center_x": 0.5,"center_y": 0.5}
-            )
-            slide.add_widget(img)
-            self.add_widget(slide)
-
-        self.page_index += self.batch_size
+            print(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
+
+        while index >= len(self.slides) and self.page_index <= self.total_pages:
+            self.load_next_pages()  
+
         if 0 <= index < len(self.slides):
             self.index = index
-            return
-        elif index >self.total_pages-1:
-            return
         else:
-            try:
-                self.load_next_pages()
-                self.load_section(page_number)
-            except RecursionError as e:
-                print(f"page loaded or index exceded : {e}")
+            print(f"Page {page_number} cannot be loaded.")
 
+#* not added 
 class AL_SHAT_E_Screen(MDScreen):
     title_raw=StringProperty("شرح الشاطبية")
     sections_raw=ListProperty()
@@ -1510,24 +1413,24 @@ class AL_SHAT_E_Screen(MDScreen):
             
             
             if self.ids.page.checking:
-                self.ids.page.clear_widgets()
+                
                 self.ids.page.checking.cancel()
-            self.ids.page.built=False
+            
 class AL_SHAT_E_pages(MDCarousel):
     checking=ObjectProperty(None)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.direction='left' 
         self.built=False
-        self.pdf_path =""
-        self.page_index = 1
+        self.img_path =""
+        self.pag_index = 1
         self.total_pages = 58
         
        
 
     def start(self):
-        if self.pdf_path=="":
-            return
+        if self.img_path=="":
+          return
         if not self.built:
             self.page_index = 1
             self.total_pages = 58
@@ -1537,58 +1440,49 @@ class AL_SHAT_E_pages(MDCarousel):
             self.built = True
             
     def check_if_at_end(self, dt):
-        if self.index == len(self.slides) - 2:
-            self.load_next_pages()        
-
+        if self.index >= len(self.slides) - 1:
+            self.load_next_pages()
 
     def load_next_pages(self):
-       
-        self.end_page = self.page_index + self.batch_size - 1
-        
         try:
-            images = convert_from_path(
-                self.pdf_path,
-                first_page=self.page_index,
-                last_page=self.end_page,
-                size=(800, None)  
-            )
+            if self.page_index > self.total_pages:
+                return  
+
+            self.end_page = min(self.page_index + self.batch_size - 1, self.total_pages)
+
+            for i in range(self.page_index, self.end_page + 1): 
+                path = Path(f'{self.img_path}/page_{i:03d}.png')
+                if path.exists():
+                    slide = MDFloatLayout(size_hint=(1, 1))
+                    img = Image(
+                        source=str(path),
+                        allow_stretch=True,
+                        keep_ratio=False,
+                        size_hint=(1, 1),
+                        pos_hint={"center_x": 0.5, "center_y": 0.5}
+                    )
+                    slide.add_widget(img)
+                    self.add_widget(slide)
+                    print(f"Added slide {i}")
+                else:
+                    print(f"Page not found: {path}")
+
+            print("Successfully loaded pages")
+            self.page_index = self.end_page + 1 
+
         except Exception as e:
-            print("Error loading pages:", e)
-            return
-
-        for pil_img in images:
-          
-            buf = BytesIO()
-            pil_img.save(buf, format="PNG")
-            buf.seek(0)
-            core_img = CoreImage(buf, ext="png")
-
-
-            slide = MDFloatLayout(size_hint=(1, 1))
-            img = Image(
-                texture=core_img.texture,
-                allow_stretch=True,
-                keep_ratio=False,
-                size_hint=(1, 1),
-                pos_hint={"center_x": 0.5,"center_y": 0.5}
-            )
-            slide.add_widget(img)
-            self.add_widget(slide)
-
-        self.page_index += self.batch_size
+            print(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
+
+        while index >= len(self.slides) and self.page_index <= self.total_pages:
+            self.load_next_pages()  
+
         if 0 <= index < len(self.slides):
             self.index = index
-            return
-        elif index >self.total_pages-1:
-            return
         else:
-            try:
-                self.load_next_pages()
-                self.load_section(page_number)
-            except RecursionError as e:
-                print(f"page loaded or index exceded : {e}")
+            print(f"Page {page_number} cannot be loaded.")
+
 
 class Mojmel_E_Screen(MDScreen):
     title_raw=StringProperty("شرح المجمل")
@@ -1746,14 +1640,18 @@ class Mojmel_E_Screen(MDScreen):
         for sec in self.sections_raw:
             temp=Arabic_txt_to_desplay(sec)
             self.sections.append(temp)
-        Clock.schedule_once(self.add_ferhas,0.1)
+        Clock.schedule_once(lambda dt:self.add_ferhas("dark"),0.1)
+
+
     def wrapper(self,n):
         self.ids.page.load_section(n),
         self.ids.nav_drawer.set_state("close")
-    def add_ferhas(self,dt):
-        l=self.ids.fehras
-        l_color=(0.9,0.9,0.9,1) if App.get_running_app().dark_app else (0.1,0.1,0.1,1)
-        t_color=l_color
+    def add_ferhas(self,caller):
+        fehras=self.ids.fehras
+        if fehras.children:
+            fehras.clear_widgets()
+        l_color=t_color=(0.9,0.9,0.9,1) if caller=="dark" else (0.1,0.1,0.1,1)
+
         for section, number in zip(self.sections, self.page_numbers):
             b = MDRectangleFlatButton(
                 font_name="arb_fnt",
@@ -1767,11 +1665,8 @@ class Mojmel_E_Screen(MDScreen):
             
 
             b.text = section
-            # b.halign = "right"
-            # b.valign = "center"
             
-            
-            l.add_widget(b)
+            fehras.add_widget(b)
             
         
 
@@ -1804,17 +1699,18 @@ class Mojmel_E_Screen(MDScreen):
             
             
             if self.ids.page.checking:
-                self.ids.page.clear_widgets()
+                
                 self.ids.page.checking.cancel()
 
-            self.ids.page.built=False
+            
 class Mojmel_E_pages(MDCarousel):
     checking=ObjectProperty(None)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.direction='left' 
         self.built=False
-        self.pdf_path ="PDFs/mojmel_E.pdf"
+        self.img_path ="PDF_Images/mojmel_E"
+
         self.page_index = 1
         self.total_pages = 198
         self.batch_size =85
@@ -1822,8 +1718,8 @@ class Mojmel_E_pages(MDCarousel):
        
 
     def start(self):
-        if not self.pdf_path:
-            return
+        if not self.img_path:
+           return
         if not self.built:
             self.page_index = 1
             self.total_pages = 198
@@ -1833,92 +1729,132 @@ class Mojmel_E_pages(MDCarousel):
             self.built = True
             
     def check_if_at_end(self, dt):
-        if self.index == len(self.slides) - 2:
-            self.load_next_pages()        
-
+        if self.index >= len(self.slides) - 1:
+            self.load_next_pages()
 
     def load_next_pages(self):
-       
-        self.end_page = self.page_index + self.batch_size - 1
-        
         try:
-            images = convert_from_path(
-                self.pdf_path,
-                first_page=self.page_index,
-                last_page=self.end_page,
-                size=(800, None)  
-            )
+            if self.page_index > self.total_pages:
+                return  
+
+            self.end_page = min(self.page_index + self.batch_size - 1, self.total_pages)
+
+            for i in range(self.page_index, self.end_page + 1): 
+                path = Path(f'{self.img_path}/page_{i:03d}.png')
+                if path.exists():
+                    slide = MDFloatLayout(size_hint=(1, 1))
+                    img = Image(
+                        source=str(path),
+                        allow_stretch=True,
+                        keep_ratio=False,
+                        size_hint=(1, 1),
+                        pos_hint={"center_x": 0.5, "center_y": 0.5}
+                    )
+                    slide.add_widget(img)
+                    self.add_widget(slide)
+                    print(f"Added slide {i}")
+                else:
+                    print(f"Page not found: {path}")
+
+            print("Successfully loaded pages")
+            self.page_index = self.end_page + 1 
+
         except Exception as e:
-            print("Error loading pages:", e)
-            return
-
-        for pil_img in images:
-          
-            buf = BytesIO()
-            pil_img.save(buf, format="PNG")
-            buf.seek(0)
-            core_img = CoreImage(buf, ext="png")
-
-
-            slide = MDFloatLayout(size_hint=(1, 1))
-            img = Image(
-                texture=core_img.texture,
-                allow_stretch=True,
-                keep_ratio=False,
-                size_hint=(1, 1),
-                pos_hint={"center_x": 0.5,"center_y": 0.5}
-            )
-            slide.add_widget(img)
-            self.add_widget(slide)
-
-        self.page_index += self.batch_size
+            print(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
+
+        while index >= len(self.slides) and self.page_index <= self.total_pages:
+            self.load_next_pages()  
+
         if 0 <= index < len(self.slides):
             self.index = index
-            return
-        elif index >self.total_pages-1:
-            return
         else:
-            try:
-                self.load_next_pages()
-                self.load_section(page_number)
-            except RecursionError as e:
-                print(f"page loaded or index exceded : {e}")
+            print(f"Page {page_number} cannot be loaded.")
 
 
 
+
+
+from kivy.clock import Clock
+
+from kivy.clock import Clock
+
+from kivy.clock import Clock
 
 class app(MDApp):
     dark_app=BooleanProperty(True)
     checking=ObjectProperty(None)
     waiting_text_raw=StringProperty("إنتظر قليلا ...")
     not_available_raw=StringProperty("غير متاح في الوقت الراهن")
+    
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.theme_cls.theme_style="Dark"
+        self.settings_path=Path("settings.json")
         self.theme_cls.primary_palette = "Amber"
         self.waiting_text=Arabic_txt_to_desplay(self.waiting_text_raw)
         self.not_available=Arabic_txt_to_desplay(self.not_available_raw)
+        
+    def load_pages(self):
+        #* i don't have another great idea
+        #* صفحات إبن بري
+        self.root.ids.ibn_b.ids.page.start()
+        #* صفحات الشاطبية
+        self.root.ids.al_shat.ids.page.start()
+        #* صفحات شرح التحفة
+        self.root.ids.tohfa_E.ids.page.start()
+        #* صفحات شرح الجزرية
+        self.root.ids.Dj_E.ids.page.start()
+        #* صفحات شرح المجمل
+        self.root.ids.mojmel_E.ids.page.start()
 
+    def build(self):
+        return super().build()
 
     def on_start(self):
-
-        self.checking=Clock.schedule_once(self.link_mode,1/60)
-    
-    def on_dark_mode_change(self,instance, value):
-        self.dark_app=value
-
-    def link_mode(self,dt):
-        try:
-            nav=App.get_running_app().root.ids.main_s.ids.nav_bar
-            nav.bind(dark_mode=self.on_dark_mode_change)
-
-        except AttributeError as e:
-            print(f"Error :{e}")
+        data = self.load_data()
         
+        if data and "theme" in data :
+            self.theme_cls.theme_style=data["theme"]
+            self.dark_app=True if data['theme']=='Dark' else False
+        else:
+            self.theme_cls.theme_style='Dark'
+            self.dark_app=True
+        
+        Clock.schedule_once(self.show_loading_and_load, 0)
 
+    def show_loading_and_load(self, dt):
+        self.root.current="loading"
+        Clock.schedule_once(lambda dt: Clock.schedule_once(self.loaded, 0), 1.0)
 
+    def loaded(self, dt):
+        self.load_pages()
+        self.root.ids.ibn_b.manager.transition=FadeTransition(duration=1/10)
+        self.root.current="main"
+    
+    def load_data(self):
+        if self.settings_path.exists() and self.settings_path.stat().st_size >0:
+            with open(self.settings_path, "r") as f:
+                return json.load(f)
+        self.settings_path.touch(exist_ok=True)
+        return {}  
+
+    def save_property(self,key, value):
+        data = self.load_data()
+        data[key] = value  
+        print(data)
+        with open(self.settings_path, "w") as f:
+            json.dump(data, f, indent=4)
+
+    def on_pause(self):
+        if self.settings_path.exists():
+            self.save_property("theme",self.theme_cls.theme_style)
+        return True
+        
+    #*for desktop
+    def on_stop(self):
+        if self.settings_path.exists():
+            self.save_property("theme",self.theme_cls.theme_style)
 
 if __name__=='__main__':
     app().run()

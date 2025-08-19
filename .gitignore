@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+
+# Env
+.venv/
+venv/
+.env
+*.log
+
+# Buildozer / Android
+.buildozer/
+bin/
+*.apk
+*.aab
+*.keystore
+*.jks
+.gradle/
+
+# IDE/OS
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Others 
+
+*.txt
