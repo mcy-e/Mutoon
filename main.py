@@ -904,7 +904,7 @@ class AL_SHAT_pages(MDCarousel):
         if not self.built:
             self.page_index = 1
             self.total_pages = 95
-            self.batch_size =10
+            self.batch_size =90
             self.load_next_pages()
             self.checking = Clock.schedule_interval(self.check_if_at_end, 0.5)
             self.built = True
