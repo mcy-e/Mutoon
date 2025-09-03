@@ -31,14 +31,11 @@ from functools import partial
 import random
 from pathlib import Path
 import json
+import logging
+
+logging.basicConfig(level=logging.debug)
 #*register the font for easy access
 LabelBase.register(name="arb_fnt", fn_regular="fonts/NotoKufiArabic-Black.ttf")
-
-#* disable print statement else time i and everyone should use logging module
-
-import builtins
-#* replace print with nothing function
-builtins.print= lambda *a,**k :None
 
 #! Global Functions
 #* function to formalize the arabic text so you can display
@@ -109,7 +106,7 @@ class Gift_popup(ModalView):
     "اللهم آتنا في الدنيا حسنة وفي\nالآخرة حسنة وقنا عذاب النار",
     "اللهم اغفر لي ولوالدي وللمؤمنين\nوالمؤمنات يوم يقوم الحساب",
     "اللهم إني أسألك الهدى والتقى\nوالعفاف والغنى",
-    "اللهم مصرف القلوب صرف قلوبنا\nعلى طاعتك",
+    "اللهم يا مصرف القلوب صرف قلوبنا\nعلى طاعتك",
     "رب اغفر لي وتب علي إنك أنت\nالتواب الرحيم",
     "اللهم ثبت قلبي على دينك\nوطاعتك",
     "اللهم إني أسألك الجنة وأعوذ\nبك من النار",
@@ -169,7 +166,7 @@ class CustomImageButton(ButtonBehavior, BoxLayout):
                 self.click()
                 Clock.schedule_once(restore_opacity,0.1)
         except Exception as e:
-            print(f"Error {e}")
+            logging.error(f"Error {e}")
 
 class Options(MDIconButton):
 
@@ -252,24 +249,7 @@ class BottomNavBar(MDBoxLayout):
             self.current_tab = tab_name
 
 
-    try:    
-        def Switch_mode(self,dr_mode):
-            dr_mode=not dr_mode
-            App.get_running_app().dark_app= not App.get_running_app().dark_app
-            if dr_mode:
-                
-                App.get_running_app().theme_cls.theme_style='Dark'
-                App.get_running_app().root.ids.mojmel_E.add_ferhas("dark")
-            else:
-               
 
-                App.get_running_app().theme_cls.theme_style='Light'
-                App.get_running_app().root.ids.mojmel_E.add_ferhas("light")
-                
-
-    except (AttributeError) as e :
-        print(f"Error {e}")        
-       
 
 
 class Muton_Full_Widget(MDFloatLayout):
@@ -283,7 +263,7 @@ class Muton_Full_Widget(MDFloatLayout):
         def on_kv_post(self, base_widget):
             self.mtn_text=Arabic_txt_to_desplay(self.mtn_text_raw)
     except Exception as e:
-        print(f"Error : {e}")
+        logging.error(f"Error : {e}")
 
 
 class Muton_btns(MDGridLayout):
@@ -293,31 +273,23 @@ class Muton_btns(MDGridLayout):
     ibn_b=StringProperty("إبن بري")
     al_shatibiya=StringProperty("الشاطبية")
     mojmel=StringProperty("مجمل إعتقاد السلف")
-    def go_to_tohfa(self):
-        App.get_running_app().root.ids.tohfa.manager.transition=FadeTransition(duration=1/10)
-        App.get_running_app().root.current="to7fa"  
 
-    def go_to_Dj(self):
-        App.get_running_app().root.ids.Dj.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="Dj"
-   
-   
-    def go_to_ibn_b(self):
-        App.get_running_app().root.ids.ibn_b.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="ibn_b"
+    def show_loading_screen(self):
+        App.get_running_app().root.ids.loading.manager.transition=FadeTransition(duration=1/10)
+        App.get_running_app().root.current="loading"
+    def go_to_screen(self,screen_name:str):
+        try:
+            if not screen_name:
+                logging.error("No screen name is detected")
+                raise Exception(f"No screen name found or type {type(screen_name)} missmatch")
+            self.show_loading_screen()
 
-
-
-    #* i didn't want to change the method  so i added it a loading screen to load all pages 
+            Clock.schedule_once(lambda dt : delayed_go_to(screen_name),0.5)        
+            def delayed_go_to(name):
+                App.get_running_app().root.current=name  
+        except Exception as e:
+            logging.error(f"Error : {e}")
     
-    def go_to_al_shat(self):
-        App.get_running_app().root.ids.al_shat.manager.transition=FadeTransition(duration=1/10)
-        App.get_running_app().root.current="al_shat"
-     
-   
-    def go_to_mojmel(self):
-        App.get_running_app().root.ids.mojmel.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="mojmel"
 
 
 class Explanation_of_Muton_Full_Widget(MDFloatLayout):
@@ -333,7 +305,7 @@ class Explanation_of_Muton_Full_Widget(MDFloatLayout):
 
             self.mtn_text_explan=Arabic_txt_to_desplay(self.mtn_text_explan_raw)
     except Exception as e:
-        print(f"Error : {e}")
+        logging.error(f"Error : {e}")
 
 class Explanation_of_Muton_btns(MDGridLayout):
     #* Arabic strings (can't be handled in the kv file) E stands for Explanation
@@ -343,26 +315,21 @@ class Explanation_of_Muton_btns(MDGridLayout):
     al_shatibiya_E=StringProperty("شرح الشاطبية")
     mojmel_E=StringProperty("شرح المجمل ")
 
-    #* changing screens
-    def go_to_tohfa_E(self):
-        App.get_running_app().root.ids.tohfa_E.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="to7fa_E"
+    def show_loading_screen(self):
+        App.get_running_app().root.ids.loading.manager.transition=FadeTransition(duration=1/10)
+        App.get_running_app().root.current="loading"
+    def go_to_screen(self,screen_name:str):
+        try:
+            if not screen_name:
+                logging.error("No screen name is detected")
+                raise Exception(f"No screen name found or type {type(screen_name)} missmatch")
+            self.show_loading_screen()
 
-    def go_to_Dj_E(self):
-        App.get_running_app().root.ids.Dj_E.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="Dj_E"
-
-    def go_to_ibn_b_E(self):
-        App.get_running_app().root.ids.ibn_b_E.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="ibn_b_E"
-    def go_to_al_shat_E(self):
-        App.get_running_app().root.ids.al_shat_E.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="al_shat_E"
-
-    def go_to_mojmel_E(self):
-        App.get_running_app().root.ids.mojmel_E.manager.transition=FadeTransition(duration=1/60)
-        App.get_running_app().root.current="mojmel_E"
-    
+            Clock.schedule_once(lambda dt : delayed_go_to(screen_name),0.5)        
+            def delayed_go_to(name):
+                App.get_running_app().root.current=name  
+        except Exception as e:
+            logging.error(f"Error : {e}")
 
 
 
@@ -455,15 +422,15 @@ class Tohfa_pages(MDCarousel):
                     )
                     slide.add_widget(img)
                     self.add_widget(slide)
-                    print(f"Added slide {i}")
+                    logging.debug(f"Added slide {i}")
                 else:
-                    print(f"Page not found: {path}")
+                    logging.error(f"Page not found: {path}")
 
-            print("Successfully loaded pages")
+            logging.debug("Successfully loaded pages")
             self.page_index = self.end_page + 1 
 
         except Exception as e:
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
 
@@ -473,7 +440,7 @@ class Tohfa_pages(MDCarousel):
         if 0 <= index < len(self.slides):
             self.index = index
         else:
-            print(f"Page {page_number} cannot be loaded.")
+            logging.error(f"Page {page_number} cannot be loaded.")
 
 
 class MojmelScreen(MDScreen):
@@ -564,15 +531,15 @@ class Mojmel_pages(MDCarousel):
                     )
                     slide.add_widget(img)
                     self.add_widget(slide)
-                    print(f"Added slide {i}")
+                    logging.debug(f"Added slide {i}")
                 else:
-                    print(f"Page not found: {path}")
+                    logging.error(f"Page not found: {path}")
 
-            print("Successfully loaded pages")
+            logging.debug("Successfully loaded pages")
             self.page_index = self.end_page + 1 
 
         except Exception as e:
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
 
@@ -582,7 +549,7 @@ class Mojmel_pages(MDCarousel):
         if 0 <= index < len(self.slides):
             self.index = index
         else:
-            print(f"Page {page_number} cannot be loaded.")
+            logging.error(f"Page {page_number} cannot be loaded.")
 
 class DjScreen(MDScreen):
     title_raw=StringProperty("المقدمة الجزرية")
@@ -689,15 +656,15 @@ class Dj_pages(MDCarousel):
                     )
                     slide.add_widget(img)
                     self.add_widget(slide)
-                    print(f"Added slide {i}")
+                    logging.debug(f"Added slide {i}")
                 else:
-                    print(f"Page not found: {path}")
+                    logging.error(f"Page not found: {path}")
 
-            print("Successfully loaded pages")
+            logging.debug("Successfully loaded pages")
             self.page_index = self.end_page + 1 
 
         except Exception as e:
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
 
@@ -707,7 +674,7 @@ class Dj_pages(MDCarousel):
         if 0 <= index < len(self.slides):
             self.index = index
         else:
-            print(f"Page {page_number} cannot be loaded.")
+            logging.error(f"Page {page_number} cannot be loaded.")
 
 
 class IBN_BScreen(MDScreen):
@@ -822,15 +789,15 @@ class IBN_B_pages(MDCarousel):
                     )
                     slide.add_widget(img)
                     self.add_widget(slide)
-                    print(f"Added slide {i}")
+                    logging.debug(f"Added slide {i}")
                 else:
-                    print(f"Page not found: {path}")
+                    logging.error(f"Page not found: {path}")
 
-            print("Successfully loaded pages")
+            logging.debug("Successfully loaded pages")
             self.page_index = self.end_page + 1 
 
         except Exception as e:
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
 
@@ -840,7 +807,7 @@ class IBN_B_pages(MDCarousel):
         if 0 <= index < len(self.slides):
             self.index = index
         else:
-            print(f"Page {page_number} cannot be loaded.")
+            logging.error(f"Page {page_number} cannot be loaded.")
 
 
 
@@ -937,7 +904,7 @@ class AL_SHAT_pages(MDCarousel):
         if not self.built:
             self.page_index = 1
             self.total_pages = 95
-            self.batch_size =31
+            self.batch_size =10
             self.load_next_pages()
             self.checking = Clock.schedule_interval(self.check_if_at_end, 0.5)
             self.built = True
@@ -966,16 +933,16 @@ class AL_SHAT_pages(MDCarousel):
                     )
                     slide.add_widget(img)
                     self.add_widget(slide)
-                    print(f"Added slide {i}")
+                    logging.debug(f"Added slide {i}")
                 else:
-                    print(f"Page not found: {path}")
+                    logging.error(f"Page not found: {path}")
 
-            print("Successfully loaded pages")
+            logging.debug("Successfully loaded pages")
             self.page_index = self.end_page + 1 
 
         except Exception as e:
-            print(f"Error: {e}")
-    def load_section(self, page_number):
+            logging.error(f"Error: {e}")
+    def load_section(self, page_number :int):
         index = page_number - 1
 
         while index >= len(self.slides) and self.page_index <= self.total_pages:
@@ -984,7 +951,7 @@ class AL_SHAT_pages(MDCarousel):
         if 0 <= index < len(self.slides):
             self.index = index
         else:
-            print(f"Page {page_number} cannot be loaded.")
+            logging.error(f"Page {page_number} cannot be loaded.")
 
 
 
@@ -1089,15 +1056,15 @@ class Tohfa_E_pages(MDCarousel):
                     )
                     slide.add_widget(img)
                     self.add_widget(slide)
-                    print(f"Added slide {i}")
+                    logging.debug(f"Added slide {i}")
                 else:
-                    print(f"Page not found: {path}")
+                    logging.error(f"Page not found: {path}")
 
-            print("Successfully loaded pages")
+            logging.debug("Successfully loaded pages")
             self.page_index = self.end_page + 1 
 
         except Exception as e:
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
 
@@ -1107,7 +1074,7 @@ class Tohfa_E_pages(MDCarousel):
         if 0 <= index < len(self.slides):
             self.index = index
         else:
-            print(f"Page {page_number} cannot be loaded.")
+            logging.error(f"Page {page_number} cannot be loaded.")
 class Dj_E_Screen(MDScreen):
     title_raw=StringProperty("شرح الجزرية")
     sections_raw=ListProperty( [
@@ -1227,15 +1194,15 @@ class Dj_E_pages(MDCarousel):
                     )
                     slide.add_widget(img)
                     self.add_widget(slide)
-                    print(f"Added slide {i}")
+                    logging.debug(f"Added slide {i}")
                 else:
-                    print(f"Page not found: {path}")
+                    logging.error(f"Page not found: {path}")
 
-            print("Successfully loaded pages")
+            logging.debug("Successfully loaded pages")
             self.page_index = self.end_page + 1 
 
         except Exception as e:
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
 
@@ -1245,7 +1212,7 @@ class Dj_E_pages(MDCarousel):
         if 0 <= index < len(self.slides):
             self.index = index
         else:
-            print(f"Page {page_number} cannot be loaded.")
+            logging.error(f"Page {page_number} cannot be loaded.")
 
 
 #* not added
@@ -1346,15 +1313,15 @@ class IBN_B_E_pages(MDCarousel):
                     )
                     slide.add_widget(img)
                     self.add_widget(slide)
-                    print(f"Added slide {i}")
+                    logging.debug(f"Added slide {i}")
                 else:
-                    print(f"Page not found: {path}")
+                    logging.error(f"Page not found: {path}")
 
-            print("Successfully loaded pages")
+            logging.debug("Successfully loaded pages")
             self.page_index = self.end_page + 1 
 
         except Exception as e:
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
 
@@ -1364,7 +1331,7 @@ class IBN_B_E_pages(MDCarousel):
         if 0 <= index < len(self.slides):
             self.index = index
         else:
-            print(f"Page {page_number} cannot be loaded.")
+            logging.error(f"Page {page_number} cannot be loaded.")
 
 #* not added 
 class AL_SHAT_E_Screen(MDScreen):
@@ -1404,6 +1371,7 @@ class AL_SHAT_E_Screen(MDScreen):
         #* MAKES THE PAGE ONLY WHEN THE USER ENTERS IT
         if "page" in self.ids: 
             self.fade_effect() 
+            
             self.ids.page.start()
 
             
@@ -1463,15 +1431,15 @@ class AL_SHAT_E_pages(MDCarousel):
                     )
                     slide.add_widget(img)
                     self.add_widget(slide)
-                    print(f"Added slide {i}")
+                    logging.debug(f"Added slide {i}")
                 else:
-                    print(f"Page not found: {path}")
+                    logging.error(f"Page not found: {path}")
 
-            print("Successfully loaded pages")
+            logging.debug("Successfully loaded pages")
             self.page_index = self.end_page + 1 
 
         except Exception as e:
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
 
@@ -1481,7 +1449,7 @@ class AL_SHAT_E_pages(MDCarousel):
         if 0 <= index < len(self.slides):
             self.index = index
         else:
-            print(f"Page {page_number} cannot be loaded.")
+            logging.error(f"Page {page_number} cannot be loaded.")
 
 
 class Mojmel_E_Screen(MDScreen):
@@ -1629,7 +1597,9 @@ class Mojmel_E_Screen(MDScreen):
     137, 139, 140, 142, 144, 145, 148, 149, 150, 152, 153, 155, 132, 133, 134, 156, 157, 158, 161,
     162, 164, 166, 167, 169, 170, 171, 173, 175,177,181, 191
 ])
-
+    t_color = ListProperty([0.1, 0.1, 0.1, 1])
+    l_color = ListProperty([0.1, 0.1, 0.1, 1])
+    app=ObjectProperty(None)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fade_in=Animation(opacity=1,duration=1/5,t='in_quad')
@@ -1646,26 +1616,44 @@ class Mojmel_E_Screen(MDScreen):
     def wrapper(self,n):
         self.ids.page.load_section(n),
         self.ids.nav_drawer.set_state("close")
-    def add_ferhas(self,caller):
-        fehras=self.ids.fehras
+
+
+    def on_kv_post(self, base_widget):
+
+        self.app = App.get_running_app()
+        self.update_colors()
+        self.app.bind(dark_mode=lambda instance, value: self.update_colors())
+
+    def update_colors(self):
+        if not self.app:
+            return
+        if self.app.dark_mode:
+            self.t_color = [0.9, 0.9, 0.9, 1]
+            self.l_color = [0.9, 0.9, 0.9, 1]
+        else:
+            self.t_color = [0.1, 0.1, 0.1, 1]
+            self.l_color = [0.1, 0.1, 0.1, 1]
+
+        for b in self.ids.fehras.children:
+            b.text_color = self.t_color
+            b.line_color = self.l_color
+
+    def add_ferhas(self, caller):
+        fehras = self.ids.fehras
         if fehras.children:
             fehras.clear_widgets()
-        l_color=t_color=(0.9,0.9,0.9,1) if caller=="dark" else (0.1,0.1,0.1,1)
 
         for section, number in zip(self.sections, self.page_numbers):
             b = MDRectangleFlatButton(
                 font_name="arb_fnt",
-                text_color=t_color,
-                line_color=l_color,
+                text_color=self.t_color,
+                line_color=self.l_color,
                 ripple_color=(0.2, 0.2, 0.2, 0.1),
                 size_hint=(1, 0.2),
                 theme_text_color="Custom",
                 on_release=lambda btn, n=number: self.wrapper(n)
             )
-            
-
             b.text = section
-            
             fehras.add_widget(b)
             
         
@@ -1752,15 +1740,15 @@ class Mojmel_E_pages(MDCarousel):
                     )
                     slide.add_widget(img)
                     self.add_widget(slide)
-                    print(f"Added slide {i}")
+                    logging.debug(f"Added slide {i}")
                 else:
-                    print(f"Page not found: {path}")
+                    logging.error(f"Page not found: {path}")
 
-            print("Successfully loaded pages")
+            logging.debug("Successfully loaded pages")
             self.page_index = self.end_page + 1 
 
         except Exception as e:
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
     def load_section(self, page_number):
         index = page_number - 1
 
@@ -1770,20 +1758,12 @@ class Mojmel_E_pages(MDCarousel):
         if 0 <= index < len(self.slides):
             self.index = index
         else:
-            print(f"Page {page_number} cannot be loaded.")
+            logging.error(f"Page {page_number} cannot be loaded.")
 
 
-
-
-
-from kivy.clock import Clock
-
-from kivy.clock import Clock
-
-from kivy.clock import Clock
 
 class app(MDApp):
-    dark_app=BooleanProperty(True)
+    dark_mode=BooleanProperty(True)
     checking=ObjectProperty(None)
     waiting_text_raw=StringProperty("إنتظر قليلا ...")
     not_available_raw=StringProperty("غير متاح في الوقت الراهن")
@@ -1792,45 +1772,25 @@ class app(MDApp):
         super().__init__(**kwargs)
         self.settings_path=Path("settings.json")
         self.theme_cls.primary_palette = "Amber"
+        self.theme_cls.accent_palette = "Gray"
         self.waiting_text=Arabic_txt_to_desplay(self.waiting_text_raw)
         self.not_available=Arabic_txt_to_desplay(self.not_available_raw)
         
-    def load_pages(self):
-        #* i don't have another great idea
-        #* صفحات إبن بري
-        self.root.ids.ibn_b.ids.page.start()
-        #* صفحات الشاطبية
-        self.root.ids.al_shat.ids.page.start()
-        #* صفحات شرح التحفة
-        self.root.ids.tohfa_E.ids.page.start()
-        #* صفحات شرح الجزرية
-        self.root.ids.Dj_E.ids.page.start()
-        #* صفحات شرح المجمل
-        self.root.ids.mojmel_E.ids.page.start()
 
-    def build(self):
-        return super().build()
-
-    def on_start(self):
+    def load_theme(self):
         data = self.load_data()
         
         if data and "theme" in data :
             self.theme_cls.theme_style=data["theme"]
-            self.dark_app=True if data['theme']=='Dark' else False
+            self.dark_mode=True if data['theme']=='Dark' else False
         else:
             self.theme_cls.theme_style='Dark'
-            self.dark_app=True
+            self.dark_mode=True
         
-        Clock.schedule_once(self.show_loading_and_load, 0)
 
-    def show_loading_and_load(self, dt):
-        self.root.current="loading"
-        Clock.schedule_once(lambda dt: Clock.schedule_once(self.loaded, 0), 1.0)
+    def on_start(self):
+        self.load_theme()
 
-    def loaded(self, dt):
-        self.load_pages()
-        self.root.ids.ibn_b.manager.transition=FadeTransition(duration=1/10)
-        self.root.current="main"
     
     def load_data(self):
         if self.settings_path.exists() and self.settings_path.stat().st_size >0:
@@ -1842,7 +1802,7 @@ class app(MDApp):
     def save_property(self,key, value):
         data = self.load_data()
         data[key] = value  
-        print(data)
+        logging.debug("Saved Settings: " +": "+ str(data))
         with open(self.settings_path, "w") as f:
             json.dump(data, f, indent=4)
 
@@ -1855,6 +1815,20 @@ class app(MDApp):
     def on_stop(self):
         if self.settings_path.exists():
             self.save_property("theme",self.theme_cls.theme_style)
+
+
+    #* Other functions
+
+    def Switch_Theme(self):
+        self.dark_mode = not self.dark_mode 
+        if self.dark_mode:  
+            App.get_running_app().theme_cls.theme_style='Dark'
+
+        else:
+            App.get_running_app().theme_cls.theme_style='Light'
+
+
+       
 
 if __name__=='__main__':
     app().run()

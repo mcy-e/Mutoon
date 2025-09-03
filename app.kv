@@ -1,26 +1,26 @@
 #: import Factory kivy.factory.Factory
+#: import ReactiveFade BackEnd.ReactiveFade
 MDScreenManager:
     id:wind_manager
     
-   
-   
-    MDScreen:
-        name:"loading"
-        id:loading
-        MDFloatLayout:
-            md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (1.0, 0.973, 0.882, 1)
-            MDLabel:
-                pos_hint: {'center_x': 0.5,'center_y': 0.6}
-                text: app.waiting_text
-                color:(0.0, 0.302, 0.251, 1) if not app.dark_app else (1.0, 0.973, 0.882, 1)
-                halign:"center"
-                font_name:"arb_fnt"
-                font_size:"20sp"
     MDScreen:
         name:"main"
         id:main
         MainScreen:
             id:main_s
+
+    MDScreen:
+        name:"loading"
+        id:loading
+        MDFloatLayout:
+            md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (1.0, 0.973, 0.882, 1)
+            MDLabel:
+                pos_hint: {'center_x': 0.5,'center_y': 0.6}
+                text: app.waiting_text
+                color:(0.0, 0.302, 0.251, 1) if not app.dark_mode else (1.0, 0.973, 0.882, 1)
+                halign:"center"
+                font_name:"arb_fnt"
+                font_size:"20sp"
 #############################################################################
 #all motoons screens are in here
 #############################################################################
@@ -29,13 +29,13 @@ MDScreenManager:
         id:tohfa
 
     DjScreen:
-        name:"Dj"
+        name:"Djazzeria"
         id:Dj
     IBN_BScreen:
         name:"ibn_b"
         id:ibn_b
     AL_SHATScreen:
-        name:"al_shat"
+        name:"al_shatibiya"
         id:al_shat
 
     MojmelScreen:
@@ -50,7 +50,7 @@ MDScreenManager:
         id:tohfa_E
      
     Dj_E_Screen:
-        name:"Dj_E"
+        name:"Djazzeria_E"
         id:Dj_E
 
     IBN_B_E_Screen:
@@ -58,7 +58,7 @@ MDScreenManager:
         id:ibn_b_E
 
     AL_SHAT_E_Screen:
-        name:"al_shat_E"
+        name:"al_shatibiya_E"
         id:al_shat_E
 
     Mojmel_E_Screen:
@@ -92,19 +92,20 @@ MDScreenManager:
                 size_hint_x:1
                 angle: 90
                 theme_text_color:"Custom"
-                text_color:  (0.0, 0.302, 0.251, 1) if not app.dark_app else (1.0, 0.973, 0.882, 1)
+                text_color:  (0.0, 0.302, 0.251, 1) if not app.dark_mode else (1.0, 0.973, 0.882, 1)
             MDIconButton:
                 id:D_L_mode
-                icon:'moon-waning-crescent' if app.dark_app else 'weather-sunny'
+                icon:'moon-waning-crescent' if app.dark_mode else 'weather-sunny'
                 theme_text_color:"Custom"
-                text_color: (0.0, 0.302, 0.251, 1) if not app.dark_app else (1.0, 0.973, 0.882, 1)
+                text_color: (0.0, 0.302, 0.251, 1) if not app.dark_mode else (1.0, 0.973, 0.882, 1)
                 size_hint_x:1
                 opacity:0
                 disabled:True
                 ripple_alpha:0
                 pos_hint:{'center_x':0.5,'center_y':0.5}
-                on_press:
-                    root.Switch_mode(app.dark_app)
+                on_press:ReactiveFade(self)
+                on_release:
+                    app.Switch_Theme()
                         
             MDIconButton:
                 id:donation
@@ -113,10 +114,11 @@ MDScreenManager:
                 opacity:0
                 ripple_alpha:0
                 theme_text_color:"Custom"
-                text_color: (0.0, 0.302, 0.251, 1) if not app.dark_app else (1.0, 0.973, 0.882, 1)
+                text_color: (0.0, 0.302, 0.251, 1) if not app.dark_mode else (1.0, 0.973, 0.882, 1)
                 disabled:True
                 pos_hint:{'center_x':0.5,'center_y':0.5}
-                on_press: 
+                on_press:ReactiveFade(self)
+                on_release: 
                     Factory.Gift_popup().create()
                     
             MDIconButton:
@@ -127,8 +129,9 @@ MDScreenManager:
                 ripple_alpha:0
                 disabled:True
                 theme_text_color:"Custom"
-                text_color: (0.0, 0.302, 0.251, 1) if not app.dark_app else (1.0, 0.973, 0.882, 1)
-                on_press: Factory.Info_popup().open()
+                text_color: (0.0, 0.302, 0.251, 1) if not app.dark_mode else (1.0, 0.973, 0.882, 1)
+                on_press:ReactiveFade(self)
+                on_release: Factory.Info_popup().open()
                 pos_hint:{'center_x':0.5,'center_y':0.5}
             MDIconButton:
                 id:socials
@@ -139,19 +142,19 @@ MDScreenManager:
                 ripple_alpha:0
                 pos_hint:{'center_x':0.5,'center_y':0.5}
                 theme_text_color:"Custom"
-                text_color: (0.0, 0.302, 0.251, 1) if not app.dark_app else (1.0, 0.973, 0.882, 1)
-                on_press: Factory.Socials_popup().open()
+                text_color: (0.0, 0.302, 0.251, 1) if not app.dark_mode else (1.0, 0.973, 0.882, 1)
+                on_press:ReactiveFade(self)
+                on_release: Factory.Socials_popup().open()
 
-
-                 
- 
     MDBoxLayout:
         orientation: 'vertical'
 
         MDBottomNavigation:
             id: nav_parent
             on_current: root.current_tab = self.current
-            panel_color: (0.0, 0.302, 0.251, 1) if app.dark_app else (1.0, 0.973, 0.882, 1)
+            panel_color: (0.0, 0.302, 0.251, 1) if  app.dark_mode else (1.0, 0.973, 0.882, 1)
+            selected_color_background: (0.0, 0.0, 0.0, 0)  
+            text_color_active: (0.0, 0.302, 0.251, 1) if not app.dark_mode else (1.0, 0.973, 0.882, 1)
 
             MDBottomNavigationItem:
                 id: mtn
@@ -159,6 +162,8 @@ MDScreenManager:
                 on_tab_press: root.set_current_tab("mutoon")
                 icon: "book-open-page-variant" if root.current_tab == 'mutoon' else "book-open-variant"
                 text: ""
+                theme_icon_color: "Custom"
+                icon_color: (0.0, 0.302, 0.251, 1) if not app.dark_mode else (1.0, 0.973, 0.882, 1)
                 Muton_Full_Widget:
 
             MDBottomNavigationItem:
@@ -167,8 +172,9 @@ MDScreenManager:
                 on_tab_press: root.set_current_tab("explained_mutoon")
                 icon: "book-open-page-variant" if root.current_tab == 'explained_mutoon' else "book-open-variant"
                 text: ""
+                theme_icon_color: "Custom"
+                icon_color: (0.0, 0.302, 0.251, 1) if not app.dark_mode else (1.0, 0.973, 0.882, 1)
                 Explanation_of_Muton_Full_Widget:
-
 
 
 <Options>:
@@ -206,13 +212,13 @@ MDScreenManager:
     cols:2
     orientation: 'lr-tb'
     CustomImageButton:
-        source: "UI/Light/To7fa.png" if app.dark_app else "UI/Dark/To7fa.png"
+        source: "UI/Light/To7fa.png" if app.dark_mode else "UI/Dark/To7fa.png"
         label_text: root.tohfa
-        click:root.go_to_tohfa
+        click:lambda : root.go_to_screen("to7fa")
     CustomImageButton:
-        source: "UI/Light/EL_Djazaria.png" if app.dark_app else "UI/Dark/EL_Djazaria.png"
+        source: "UI/Light/EL_Djazaria.png" if app.dark_mode else "UI/Dark/EL_Djazaria.png"
         label_text:root.Djazzeria
-        click:root.go_to_Dj
+        click:lambda : root.go_to_screen("Djazzeria")
 
     Widget:
         size_hint_y: None
@@ -221,14 +227,14 @@ MDScreenManager:
         size_hint_y: None
         height: dp(40)
     CustomImageButton:
-        source: "UI/Light/ibn_b.png" if app.dark_app else "UI/Dark/ibn_b.png"
+        source: "UI/Light/ibn_b.png" if app.dark_mode else "UI/Dark/ibn_b.png"
         label_text:root.ibn_b
-        click:root.go_to_ibn_b
+        click:lambda : root.go_to_screen("ibn_b")
 
     CustomImageButton:
-        source: "UI/Light/al_shatibiya.png" if app.dark_app else "UI/Dark/al_shatibiya.png"
+        source: "UI/Light/al_shatibiya.png" if app.dark_mode else "UI/Dark/al_shatibiya.png"
         label_text:root.al_shatibiya
-        click:root.go_to_al_shat
+        click:lambda : root.go_to_screen("al_shatibiya")
     # padding for rows only
     Widget:
         size_hint_y: None
@@ -237,9 +243,9 @@ MDScreenManager:
         size_hint_y: None
         height: dp(40)
     CustomImageButton:
-        source: "UI/Light/mojmel.png" if app.dark_app else "UI/Dark/mojmel.png"
+        source: "UI/Light/mojmel.png" if app.dark_mode else "UI/Dark/mojmel.png"
         label_text:root.mojmel
-        click:root.go_to_mojmel
+        click:lambda : root.go_to_screen("mojmel")
        
 
 
@@ -270,13 +276,13 @@ MDScreenManager:
     cols:2
     orientation: 'lr-tb'   
     CustomImageButton:
-        source: "UI/Light/To7fa_E.png" if app.dark_app else "UI/Dark/To7fa_E.png"
+        source: "UI/Light/To7fa_E.png" if app.dark_mode else "UI/Dark/To7fa_E.png"
         label_text: root.tohfa_E
-        click:root.go_to_tohfa_E
+        click:lambda : root.go_to_screen("to7fa_E")
     CustomImageButton:
-        source: "UI/Light/EL_Djazaria_E.png" if app.dark_app else "UI/Dark/EL_Djazaria_E.png"
+        source: "UI/Light/EL_Djazaria_E.png" if app.dark_mode else "UI/Dark/EL_Djazaria_E.png"
         label_text:root.Djazzeria_E
-        click:root.go_to_Dj_E
+        click:lambda : root.go_to_screen("Djazzeria_E")
 
     Widget:
         size_hint_y: None
@@ -285,14 +291,14 @@ MDScreenManager:
         size_hint_y: None
         height: dp(40)
     CustomImageButton:
-        source: "UI/Light/ibn_b_E.png" if app.dark_app else "UI/Dark/ibn_b_E.png"
+        source: "UI/Light/ibn_b_E.png" if app.dark_mode else "UI/Dark/ibn_b_E.png"
         label_text:root.ibn_b_E
-        click:root.go_to_ibn_b_E
+        click:lambda : root.go_to_screen("ibn_b_E")
 
     CustomImageButton:
-        source: "UI/Light/al_shatibiya_E.png" if app.dark_app else "UI/Dark/al_shatibiya_E.png"
+        source: "UI/Light/al_shatibiya_E.png" if app.dark_mode else "UI/Dark/al_shatibiya_E.png"
         label_text:root.al_shatibiya_E
-        click:root.go_to_al_shat_E
+        click:lambda : root.go_to_screen("al_shatibiya_E")
     # padding for rows only
     Widget:
         size_hint_y: None
@@ -301,9 +307,9 @@ MDScreenManager:
         size_hint_y: None
         height: dp(40)
     CustomImageButton:
-        source: "UI/Light/mojmel_E.png" if app.dark_app else "UI/Dark/mojmel_E.png"
+        source: "UI/Light/mojmel_E.png" if app.dark_mode else "UI/Dark/mojmel_E.png"
         label_text:root.mojmel_E
-        click:root.go_to_mojmel_E
+        click:lambda : root.go_to_screen("mojmel_E")
 #Screens init for KV      
 <TohfaScreen>: 
     MDNavigationLayout:
@@ -315,14 +321,14 @@ MDScreenManager:
                     MDFloatLayout:
                         id:top_menu
                         size_hint_y:0.09
-                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                        
                         MDLabel:
                             opacity:0
                             id:title
                             text:root.title
                             pos_hint: {'x':0.19,'center_y': 0.5}
-                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             font_name:"arb_fnt"
                             halign: "center"
                             size_hint_y: 0.2
@@ -332,11 +338,11 @@ MDScreenManager:
                             id:menu_btn
                             icon:"menu"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'x': 0.03,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
-                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                                 nav_drawer.set_state("open")
 
 
@@ -345,7 +351,7 @@ MDScreenManager:
                             id:back_btn
                             icon:"arrow-left"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'right': 1,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
@@ -366,7 +372,7 @@ MDScreenManager:
 
         MDNavigationDrawer:
             id: nav_drawer
-            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
             BoxLayout:
                 orientation: 'vertical'
 
@@ -379,8 +385,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[0]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -391,8 +397,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[1]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -404,8 +410,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[2]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -417,8 +423,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[3]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -429,8 +435,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[4]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -441,8 +447,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[5]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -454,8 +460,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[6]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -466,8 +472,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[7]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -479,8 +485,8 @@ MDScreenManager:
                             text:root.sections[8]
                             font_name:"arb_fnt"
                             halign:"center"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -492,8 +498,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[9]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -505,7 +511,7 @@ MDScreenManager:
                     text:root.copyright 
                     font_name:"arb_fnt"
                     font_size:'7sp'
-                    color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                    color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                     halign:"center" 
                     vallign:"center"              
                            
@@ -522,14 +528,14 @@ MDScreenManager:
                     MDFloatLayout:
                         id:top_menu
                         size_hint_y:0.09
-                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                        
                         MDLabel:
                             opacity:0
                             id:title
                             text:root.title
                             pos_hint: {'x':0.1,'center_y': 0.5}
-                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             font_name:"arb_fnt"
                             halign: "center"
                             size_hint_y: 0.2
@@ -539,11 +545,11 @@ MDScreenManager:
                             id:menu_btn
                             icon:"menu"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'x': 0.03,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
-                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                                 nav_drawer.set_state("open")
 
 
@@ -552,7 +558,7 @@ MDScreenManager:
                             id:back_btn
                             icon:"arrow-left"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'right': 1,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
@@ -573,7 +579,7 @@ MDScreenManager:
 
         MDNavigationDrawer:
             id: nav_drawer
-            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
             BoxLayout:
                 orientation: 'vertical'
 
@@ -586,8 +592,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[0]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -598,8 +604,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[1]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -614,7 +620,7 @@ MDScreenManager:
                     text:root.copyright 
                     font_name:"arb_fnt"
                     font_size:"7sp"
-                    color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                    color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                     halign:"center" 
                     vallign:"center"                    
                            
@@ -632,14 +638,14 @@ MDScreenManager:
                     MDFloatLayout:
                         id:top_menu
                         size_hint_y:0.09
-                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                        
                         MDLabel:
                             opacity:0
                             id:title
                             text:root.title
                             pos_hint: {'x':0.1,'center_y': 0.5}
-                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             font_name:"arb_fnt"
                             halign: "center"
                             size_hint_y: 0.2
@@ -649,11 +655,11 @@ MDScreenManager:
                             id:menu_btn
                             icon:"menu"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'x': 0.03,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
-                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                                 nav_drawer.set_state("open")
 
 
@@ -662,7 +668,7 @@ MDScreenManager:
                             id:back_btn
                             icon:"arrow-left"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'right': 1,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
@@ -683,7 +689,7 @@ MDScreenManager:
 
         MDNavigationDrawer:
             id: nav_drawer
-            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
             BoxLayout:
                 orientation: 'vertical'
 
@@ -704,8 +710,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[0]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x: 1
                             size_hint_y:0.2
@@ -716,8 +722,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[1]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -727,8 +733,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[2]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -738,8 +744,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[3]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -749,8 +755,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[4]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -760,8 +766,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[5]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -771,8 +777,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[6]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_y:0.2
                             size_hint_x: 1
@@ -783,8 +789,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[7]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x: 1
                             size_hint_y:0.2
@@ -794,8 +800,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[8]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -805,8 +811,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[9]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -816,8 +822,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[10]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -827,8 +833,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[11]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -838,8 +844,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[12]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -849,8 +855,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[13]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -860,8 +866,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[14]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -871,8 +877,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[15]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -886,7 +892,7 @@ MDScreenManager:
                     text:root.copyright 
                     font_name:"arb_fnt"
                     font_size:"7sp"
-                    color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                    color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                     halign:"center" 
                     vallign:"center"                             
                            
@@ -905,14 +911,14 @@ MDScreenManager:
                     MDFloatLayout:
                         id:top_menu
                         size_hint_y:0.09
-                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                        
                         MDLabel:
                             opacity:0
                             id:title
                             text:root.title
                             pos_hint: {'x':0.19,'center_y': 0.5}
-                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             font_name:"arb_fnt"
                             halign: "center"
                             size_hint_y: 0.2
@@ -922,11 +928,11 @@ MDScreenManager:
                             id:menu_btn
                             icon:"menu"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'x': 0.03,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
-                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                                 nav_drawer.set_state("open")
 
 
@@ -935,7 +941,7 @@ MDScreenManager:
                             id:back_btn
                             icon:"arrow-left"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'right': 1,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
@@ -956,7 +962,7 @@ MDScreenManager:
 
         MDNavigationDrawer:
             id: nav_drawer
-            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
             BoxLayout:
                 orientation: 'vertical'
 
@@ -977,8 +983,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[0]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x: 1
                             size_hint_y:0.2
@@ -989,8 +995,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[1]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1000,8 +1006,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[2]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1011,8 +1017,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[3]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1022,8 +1028,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[4]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1033,8 +1039,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[5]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1044,8 +1050,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[6]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_y:0.2
                             size_hint_x: 1
@@ -1056,8 +1062,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[7]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x: 1
                             size_hint_y:0.2
@@ -1067,8 +1073,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[8]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1078,8 +1084,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[9]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1089,8 +1095,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[10]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1100,8 +1106,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[11]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1111,8 +1117,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[12]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1122,8 +1128,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[13]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1133,8 +1139,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[14]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1144,8 +1150,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[15]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1155,8 +1161,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[16]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1166,8 +1172,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[17]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1177,8 +1183,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[18]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1188,8 +1194,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[19]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1199,8 +1205,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[20]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1222,7 +1228,7 @@ MDScreenManager:
                     text:root.copyright 
                     font_name:"arb_fnt"
                     font_size:"7sp"
-                    color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                    color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                     halign:"center" 
                     vallign:"center"                             
                            
@@ -1238,14 +1244,14 @@ MDScreenManager:
                     MDFloatLayout:
                         id:top_menu
                         size_hint_y:0.09
-                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                        
                         MDLabel:
                             opacity:0
                             id:title
                             text:root.title
                             pos_hint: {'x':0.19,'center_y': 0.5}
-                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             font_name:"arb_fnt"
                             halign: "center"
                             size_hint_y: 0.2
@@ -1255,11 +1261,11 @@ MDScreenManager:
                             id:menu_btn
                             icon:"menu"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'x': 0.03,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
-                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                                 nav_drawer.set_state("open")
 
 
@@ -1268,7 +1274,7 @@ MDScreenManager:
                             id:back_btn
                             icon:"arrow-left"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'right': 1,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
@@ -1289,7 +1295,7 @@ MDScreenManager:
 
         MDNavigationDrawer:
             id: nav_drawer
-            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
             BoxLayout:
                 orientation: 'vertical'
 
@@ -1310,8 +1316,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[0]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x: 1
                             size_hint_y:0.2
@@ -1322,8 +1328,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[1]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1333,8 +1339,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[2]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1344,8 +1350,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[3]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1355,8 +1361,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[4]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1366,8 +1372,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[5]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1377,8 +1383,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[6]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_y:0.2
                             size_hint_x: 1
@@ -1389,8 +1395,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[7]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x: 1
                             size_hint_y:0.2
@@ -1400,8 +1406,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[8]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1411,8 +1417,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[9]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1422,8 +1428,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[10]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1433,8 +1439,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[11]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1444,8 +1450,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[12]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1455,8 +1461,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[13]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1466,8 +1472,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[14]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1477,8 +1483,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[15]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1488,8 +1494,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[16]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1499,8 +1505,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[17]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1510,8 +1516,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[18]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1521,8 +1527,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[19]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1532,8 +1538,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[20]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1544,8 +1550,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[21]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1556,8 +1562,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[22]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1568,8 +1574,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[23]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1580,8 +1586,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[24]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1592,8 +1598,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[25]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1603,8 +1609,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[26]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1614,8 +1620,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[27]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1626,8 +1632,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[28]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1643,7 +1649,7 @@ MDScreenManager:
                     text:root.copyright 
                     font_name:"arb_fnt"
                     font_size:"7sp"
-                    color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                    color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                     halign:"center" 
                     vallign:"center"                             
                            
@@ -1664,14 +1670,14 @@ MDScreenManager:
                     MDFloatLayout:
                         id:top_menu
                         size_hint_y:0.09
-                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                        
                         MDLabel:
                             opacity:0
                             id:title
                             text:root.title
                             pos_hint: {'x':0.1,'center_y': 0.5}
-                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             font_name:"arb_fnt"
                             halign: "center"
                             size_hint_y: 0.2
@@ -1681,11 +1687,11 @@ MDScreenManager:
                             id:menu_btn
                             icon:"menu"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'x': 0.03,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
-                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                                 nav_drawer.set_state("open")
 
 
@@ -1694,7 +1700,7 @@ MDScreenManager:
                             id:back_btn
                             icon:"arrow-left"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'right': 1,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
@@ -1715,7 +1721,7 @@ MDScreenManager:
 
         MDNavigationDrawer:
             id: nav_drawer
-            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
             BoxLayout:
                 orientation: 'vertical'
 
@@ -1736,8 +1742,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[0]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x: 1
                             size_hint_y:0.2
@@ -1748,8 +1754,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[1]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1759,8 +1765,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[2]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1770,8 +1776,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[3]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1781,8 +1787,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[4]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1797,7 +1803,7 @@ MDScreenManager:
                     text:root.copyright 
                     font_name:"arb_fnt"
                     font_size:"7sp"
-                    color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                    color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                     halign:"center" 
                     vallign:"center"                             
                            
@@ -1814,14 +1820,14 @@ MDScreenManager:
                     MDFloatLayout:
                         id:top_menu
                         size_hint_y:0.09
-                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                        
                         MDLabel:
                             opacity:0
                             id:title
                             text:root.title
                             pos_hint: {'x':0.15,'center_y': 0.5}
-                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             font_name:"arb_fnt"
                             halign: "center"
                             size_hint_y: 0.2
@@ -1831,11 +1837,11 @@ MDScreenManager:
                             id:menu_btn
                             icon:"menu"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'x': 0.03,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
-                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                                 nav_drawer.set_state("open")
 
 
@@ -1844,7 +1850,7 @@ MDScreenManager:
                             id:back_btn
                             icon:"arrow-left"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'right': 1,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
@@ -1866,7 +1872,7 @@ MDScreenManager:
 
         MDNavigationDrawer:
             id: nav_drawer
-            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
             BoxLayout:
                 orientation: 'vertical'
 
@@ -1888,8 +1894,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[0]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1899,8 +1905,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[1]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1910,8 +1916,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[2]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1921,8 +1927,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[3]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1932,8 +1938,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[4]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1943,8 +1949,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[5]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1954,8 +1960,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[6]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1966,8 +1972,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[7]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1979,8 +1985,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[8]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -1991,8 +1997,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[9]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -2002,8 +2008,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[10]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -2013,8 +2019,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[11]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -2024,8 +2030,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[12]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -2036,8 +2042,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[13]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -2047,8 +2053,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[14]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -2058,8 +2064,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[15]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -2069,8 +2075,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[16]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -2080,8 +2086,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[17]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -2091,8 +2097,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[18]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -2102,8 +2108,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[19]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -2113,8 +2119,8 @@ MDScreenManager:
                         MDRectangleFlatButton:
                             text:root.sections[20]
                             font_name:"arb_fnt"
-                            text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                            line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                            text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                            line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                             ripple_color: 0.2, 0.2, 0.2, 0.1
                             size_hint_x:1
                             size_hint_y:0.2
@@ -2131,7 +2137,7 @@ MDScreenManager:
                     text:root.copyright 
                     font_name:"arb_fnt"
                     font_size:"7sp"
-                    color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                    color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                     halign:"center" 
                     vallign:"center"                             
                            
@@ -2150,14 +2156,14 @@ MDScreenManager:
                     MDFloatLayout:
                         id:top_menu
                         size_hint_y:0.09
-                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                        
                         MDLabel:
                             opacity:0
                             id:title
                             text:root.title
                             pos_hint: {'x':0.15,'center_y': 0.5}
-                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             font_name:"arb_fnt"
                             halign: "center"
                             size_hint_y: 0.2
@@ -2168,11 +2174,11 @@ MDScreenManager:
                             icon:"menu"
                             disabled: 'True'
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'x': 0.03,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
-                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                                 nav_drawer.set_state("open")
 
 
@@ -2181,7 +2187,7 @@ MDScreenManager:
                             id:back_btn
                             icon:"arrow-left"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'right': 1,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
@@ -2202,13 +2208,14 @@ MDScreenManager:
                             text:app.not_available
                             font_name:"arb_fnt"
                             font_size:"20sp"
+                            theme_text_color:'Custom'
                             color:(0,0,0,1)
                             halign:"center"
 
 
         MDNavigationDrawer:
             id: nav_drawer
-            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
             BoxLayout:
                 orientation: 'vertical'
 
@@ -2230,8 +2237,8 @@ MDScreenManager:
                         # MDRectangleFlatButton:
                         #     text:root.sections[4]
                         #     font_name:"arb_fnt"
-                        #     text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                        #     line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                        #     text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                        #     line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                         #     ripple_color: 0.2, 0.2, 0.2, 0.1
                         #     size_hint_x:1
                         #     size_hint_y:0.2
@@ -2246,7 +2253,7 @@ MDScreenManager:
                     text:root.copyright 
                     font_name:"arb_fnt"
                     font_size:"7sp"
-                    color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                    color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                     halign:"center" 
                     vallign:"center"                             
                            
@@ -2265,14 +2272,14 @@ MDScreenManager:
                     MDFloatLayout:
                         id:top_menu
                         size_hint_y:0.09
-                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                        
                         MDLabel:
                             opacity:0
                             id:title
                             text:root.title
                             pos_hint: {'x':0.15,'center_y': 0.5}
-                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             font_name:"arb_fnt"
                             halign: "center"
                             size_hint_y: 0.2
@@ -2283,11 +2290,11 @@ MDScreenManager:
                             icon:"menu"
                             disabled: 'True'
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'x': 0.03,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
-                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                                 nav_drawer.set_state("open")
 
 
@@ -2296,7 +2303,7 @@ MDScreenManager:
                             id:back_btn
                             icon:"arrow-left"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'right': 1,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
@@ -2317,13 +2324,14 @@ MDScreenManager:
                             text:app.not_available
                             font_name:"arb_fnt"
                             font_size:"20sp"
-                            color:(0,0,0,1)
+                            theme_text_color:'Custom'
+                            color:(0,0,0,1) 
                             halign:"center"
 
 
         MDNavigationDrawer:
             id: nav_drawer
-            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
             BoxLayout:
                 orientation: 'vertical'
 
@@ -2345,8 +2353,8 @@ MDScreenManager:
                         # MDRectangleFlatButton:
                         #     text:root.sections[4]
                         #     font_name:"arb_fnt"
-                        #     text_color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
-                        #     line_color: (0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                        #     text_color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
+                        #     line_color: (0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                         #     ripple_color: 0.2, 0.2, 0.2, 0.1
                         #     size_hint_x:1
                         #     size_hint_y:0.2
@@ -2361,7 +2369,7 @@ MDScreenManager:
                     text:root.copyright 
                     font_name:"arb_fnt"
                     font_size:"7sp"
-                    color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                    color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                     halign:"center" 
                     vallign:"center"                             
                            
@@ -2388,14 +2396,14 @@ MDScreenManager:
                     MDFloatLayout:
                         id:top_menu
                         size_hint_y:0.09
-                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                        
                         MDLabel:
                             opacity:0
                             id:title
                             text:root.title
                             pos_hint: {'x':0.15,'center_y': 0.5}
-                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             font_name:"arb_fnt"
                             halign: "center"
                             size_hint_y: 0.2
@@ -2405,11 +2413,11 @@ MDScreenManager:
                             id:menu_btn
                             icon:"menu"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'x': 0.03,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
-                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+                                nav_drawer.md_bg_color=(0.0, 0.302, 0.251, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
                                 nav_drawer.set_state("open")
 
 
@@ -2418,7 +2426,7 @@ MDScreenManager:
                             id:back_btn
                             icon:"arrow-left"
                             theme_text_color:"Custom"
-                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_app else (1.0, 0.973, 0.882, 1)
+                            text_color:(0.0, 0.302, 0.251, 1) if  not app.dark_mode else (1.0, 0.973, 0.882, 1)
                             pos_hint: {'right': 1,'center_y': 0.5} 
                             ripple_alpha:0 
                             on_press:
@@ -2440,7 +2448,7 @@ MDScreenManager:
 
         MDNavigationDrawer:
             id: nav_drawer
-            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_app else (0.941, 0.918, 0.839, 1)
+            md_bg_color:(0.004, 0.267, 0.129, 1) if app.dark_mode else (0.941, 0.918, 0.839, 1)
             BoxLayout:
                 orientation: 'vertical'
 
@@ -2466,7 +2474,7 @@ MDScreenManager:
                     text:root.copyright 
                     font_name:"arb_fnt"
                     font_size:"7sp"
-                    color:(0.9,0.9,0.9,1) if app.dark_app else (0.1,0.1,0.1,1)
+                    color:(0.9,0.9,0.9,1) if app.dark_mode else (0.1,0.1,0.1,1)
                     halign:"center" 
                     vallign:"center"                             
                            
@@ -2479,14 +2487,14 @@ MDScreenManager:
 
 <Info_popup>:
     size_hint: 0.8, 0.8
-    background_color: (0.0, 0.302, 0.251, 1) if app.dark_app else (1.0, 0.973, 0.882, 1)
+    background_color: (0.0, 0.302, 0.251, 1) if app.dark_mode else (1.0, 0.973, 0.882, 1)
     auto_dismiss: True
     pos_hint: {'top': 0.9}
     MDCard:
         orientation: "vertical"
         radius: [15,]
         elevation: 4
-        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (1.0, 0.973, 0.882, 1)
+        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (1.0, 0.973, 0.882, 1)
         MDBoxLayout:
             padding:"20dp"
             orientation: "vertical"
@@ -2501,38 +2509,38 @@ MDScreenManager:
                         font_name:"fonts/NotoKufiArabic-ExtraBold.ttf"
                         font_size:'15sp'
                         theme_text_color: "Custom"
-                        text_color: (1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
+                        text_color: (1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
                 MDBoxLayout:
                     Image:
-                        source:"Images/1_d.png" if app.dark_app else "Images/1_l.png"  
+                        source:"Images/1_d.png" if app.dark_mode else "Images/1_l.png"  
                         keep_ratio:True,
                         size_hint:(1, 1)
                         allow_stretch:False
                         pos_hint:{'center_x': 0.5,'center_y': 0.5}
                 MDBoxLayout:
                     Image:
-                        source:"Images/2_d.png" if app.dark_app else "Images/2_l.png"  
+                        source:"Images/2_d.png" if app.dark_mode else "Images/2_l.png"  
                         keep_ratio:True,
                         size_hint:(1, 1)
                         allow_stretch:False
                         pos_hint:{'center_x': 0.5,'center_y': 0.5}
                 MDBoxLayout:
                     Image:
-                        source:"Images/3_d.png" if app.dark_app else "Images/3_l.png"  
+                        source:"Images/3_d.png" if app.dark_mode else "Images/3_l.png"  
                         keep_ratio:True,
                         size_hint:(1, 1)
                         allow_stretch:False
                         pos_hint:{'center_x': 0.5,'center_y': 0.5}
                 MDBoxLayout:
                     Image:
-                        source:"Images/4_d.png" if app.dark_app else "Images/4_l.png"  
+                        source:"Images/4_d.png" if app.dark_mode else "Images/4_l.png"  
                         keep_ratio:True,
                         size_hint:(1, 1)
                         allow_stretch:False
                         pos_hint:{'center_x': 0.5,'center_y': 0.5}
                 MDBoxLayout:
                     Image:
-                        source:"Images/5_d.png" if app.dark_app else "Images/5_l.png"  
+                        source:"Images/5_d.png" if app.dark_mode else "Images/5_l.png"  
                         keep_ratio:True,
                         size_hint:(1, 1)
                         allow_stretch:False
@@ -2547,14 +2555,14 @@ MDScreenManager:
 
 <Socials_popup>:
     size_hint: 0.8, 0.5
-    background_color: (0.0, 0.302, 0.251, 1) if app.dark_app else (1.0, 0.973, 0.882, 1)
+    background_color: (0.0, 0.302, 0.251, 1) if app.dark_mode else (1.0, 0.973, 0.882, 1)
     auto_dismiss: True
     pos_hint: {'top': 0.9}
     MDCard:
         orientation: "vertical"
         radius: [15,]
         elevation: 4
-        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (1.0, 0.973, 0.882, 1)
+        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (1.0, 0.973, 0.882, 1)
         MDBoxLayout:
             padding:"10dp"
             orientation: "vertical"
@@ -2566,7 +2574,7 @@ MDScreenManager:
                 font_name:"fonts/NotoKufiArabic-ExtraBold.ttf"
                 font_size:'12sp'
                 theme_text_color: "Custom"
-                text_color: (1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
+                text_color: (1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
                 size_hint:1,0.1
             MDBoxLayout:
                 orientation:"vertical"
@@ -2581,9 +2589,9 @@ MDScreenManager:
                     radius: [15,]
                     elevation:2
                     theme_text_color:"Custom"
-                    text_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
-                    icon_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
-                    line_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
+                    text_color:(1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
+                    icon_color:(1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
+                    line_color:(1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
                     on_release:root.routes("https://www.instagram.com/reffaschouaib/")
                 MDRectangleFlatIconButton:
                     text:"github"
@@ -2593,9 +2601,9 @@ MDScreenManager:
                     radius: [15,]
                     elevation:2
                     theme_text_color:"Custom"
-                    text_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
-                    icon_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
-                    line_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
+                    text_color:(1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
+                    icon_color:(1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
+                    line_color:(1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
                     on_release:root.routes("https://github.com/mcy-e")
                 MDRectangleFlatIconButton:
                     text:"twitter"
@@ -2605,9 +2613,9 @@ MDScreenManager:
                     radius: [15,]
                     elevation:2
                     theme_text_color:"Custom"
-                    text_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
-                    icon_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
-                    line_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
+                    text_color:(1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
+                    icon_color:(1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
+                    line_color:(1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
                     on_release:root.routes("https://x.com/MRc_MCY")
                 MDRectangleFlatIconButton:
                     text:"gmail"
@@ -2617,9 +2625,9 @@ MDScreenManager:
                     radius: [15,]
                     elevation:2
                     theme_text_color:"Custom"
-                    text_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
-                    icon_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
-                    line_color:(1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
+                    text_color:(1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
+                    icon_color:(1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
+                    line_color:(1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
                     on_release:root.routes("mailto:reffaschouaib@gamil.com")
             MDRaisedButton:
                 text: root.close_txt
@@ -2629,14 +2637,14 @@ MDScreenManager:
                 on_release: root.dismiss()
 <Gift_popup>:
     size_hint: 0.8, 0.3
-    background_color: (0.0, 0.302, 0.251, 1) if app.dark_app else (1.0, 0.973, 0.882, 1)
+    background_color: (0.0, 0.302, 0.251, 1) if app.dark_mode else (1.0, 0.973, 0.882, 1)
     auto_dismiss: True
 
     MDCard:
         orientation: "vertical"
         radius: [15,]
         elevation: 4
-        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_app else (1.0, 0.973, 0.882, 1)
+        md_bg_color:(0.0, 0.302, 0.251, 1) if app.dark_mode else (1.0, 0.973, 0.882, 1)
         MDBoxLayout:
             padding:"10dp"
             orientation: "vertical"
@@ -2647,7 +2655,7 @@ MDScreenManager:
                 font_name:"fonts/NotoKufiArabic-ExtraBold.ttf"
                 font_size:'12sp'
                 theme_text_color: "Custom"
-                text_color: (1, 1, 1, 1) if app.dark_app else (0.2,0.2,0.2,1)
+                text_color: (1, 1, 1, 1) if app.dark_mode else (0.2,0.2,0.2,1)
                 size_hint:1,0.8
 
             MDRaisedButton:
@@ -2680,7 +2688,7 @@ MDScreenManager:
         size_hint_y: 0.2
         font_size: "15sp"
         font_name:"fonts/Amiri-Regular.ttf"
-        color: (1, 1, 1, 1) if app.dark_app else (0,0,0,1)
+        color: (1, 1, 1, 1) if app.dark_mode else (0,0,0,1)
 
 
 
